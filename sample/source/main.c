@@ -1,15 +1,12 @@
 #include <string.h>
-
 #include <3ds.h>
+#include <sf2d/sf2d.h>
 
 int main()
 {
-	gfxInitDefault();
-	//gfxSet3D(true); // uncomment if using stereoscopic 3D
+	sf2d_init();
 
-	// Main loop
-	while (aptMainLoop())
-	{
+	while (aptMainLoop()) {
 		gspWaitForVBlank();
 		hidScanInput();
 
@@ -32,6 +29,6 @@ int main()
 		gfxSwapBuffers();
 	}
 
-	gfxExit();
+	sf2d_fini();
 	return 0;
 }
