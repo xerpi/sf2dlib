@@ -7,7 +7,7 @@ int main()
 	sf2d_init();
 
 	while (aptMainLoop()) {
-		gspWaitForVBlank();
+		sf2d_start_frame();
 		hidScanInput();
 
 		// Your code goes here
@@ -24,9 +24,7 @@ int main()
 		fb[3*(10+10*240)+1] = 0xFF;
 		fb[3*(10+10*240)+2] = 0xFF;
 
-		// Flush and swap framebuffers
-		gfxFlushBuffers();
-		gfxSwapBuffers();
+		sf2d_end_frame();
 	}
 
 	sf2d_fini();
