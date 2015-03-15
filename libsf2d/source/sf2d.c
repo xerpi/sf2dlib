@@ -28,6 +28,7 @@ int sf2d_init()
 	if (sf2d_initialized) return 0;
 	
 	gfxInitDefault();
+	GPU_Init(NULL);
 	gfxSet3D(false);
 	
 	gpu_cmd = (u32 *)linearAlloc(GPU_CMD_SIZE * 4);
@@ -56,6 +57,7 @@ int sf2d_fini()
 
 void sf2d_start_frame()
 {
+	GPUCMD_SetBufferOffset(0);
 	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
 					(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
 					0, 0, 240*2, 400);
@@ -71,7 +73,7 @@ void sf2d_start_frame()
 	GPU_SetAlphaBlending(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
 	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
 	
-	GPU_SetTextureEnable(GPU_TEXUNIT0);
+	/*GPU_SetTextureEnable(GPU_TEXUNIT0);
 
 	GPU_SetTexEnv(0,
 		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
@@ -79,7 +81,8 @@ void sf2d_start_frame()
 		GPU_TEVOPERANDS(0,0,0),
 		GPU_TEVOPERANDS(0,0,0),
 		GPU_MODULATE, GPU_MODULATE,
-		0xFFFFFFFF);
+		0xFFFFFFFF);*/
+	GPU_SetDummyTexEnv(0);
 	GPU_SetDummyTexEnv(1);
 	GPU_SetDummyTexEnv(2);
 	GPU_SetDummyTexEnv(3);
