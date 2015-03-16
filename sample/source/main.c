@@ -5,6 +5,7 @@
 int main()
 {
 	sf2d_init();
+	sf2d_set_clear_color(RGBA8(0xFF, 0x00F, 0x00, 0xFF));
 
 	while (aptMainLoop()) {
 		sf2d_start_frame();

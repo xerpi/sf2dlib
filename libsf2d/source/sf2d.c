@@ -1,4 +1,5 @@
 #include "sf2d.h"
+#include "shader_vsh_shbin.h"
 
 #define GPU_CMD_SIZE 0x40000
 
@@ -9,6 +10,9 @@ static u32 *gpu_cmd = NULL;
 static u32 *gpu_fb_addr = (u32 *)0x1F119400;
 //GPU depth buffer address
 static u32 *gpu_depth_fb_addr = (u32 *)0x1F370800;
+//Shader stuff
+static DVLB_s* dvlb;
+static shaderProgram_s shader;
 
 //stolen from staplebutt
 static void GPU_SetDummyTexEnv(u8 num)
@@ -35,6 +39,12 @@ int sf2d_init()
 	
 	GPU_Reset(NULL, gpu_cmd, GPU_CMD_SIZE);
 	
+	//Load the shader
+	dvlb = DVLB_ParseFile((u32 *)shader_vsh_shbin, shader_vsh_shbin_size);
+	shaderProgramInit(&shader);
+	shaderProgramSetVsh(&shader, &dvlb->DVLE[0]);
+	shaderProgramUse(&shader);
+
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
 	gspWaitForP3D();
@@ -49,6 +59,8 @@ int sf2d_fini()
 	if (!sf2d_initialized) return 0;
 	
 	gfxExit();
+	shaderProgramFree(&shader);
+	DVLB_Free(dvlb);
 	
 	sf2d_initialized = 0;
 	
@@ -97,11 +109,11 @@ void sf2d_end_frame()
 	GPUCMD_FlushAndRun(NULL);
 	gspWaitForP3D();
 
-	//clear the screen
+	//Draw the screen
 	GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
 	gspWaitForPPF();
 
-	//clear the screen
+	//Clear the screen
 	GX_SetMemoryFill(NULL, gpu_fb_addr, clear_color, &gpu_fb_addr[0x2EE00],
 		0x201, gpu_depth_fb_addr, 0x00000000, &gpu_depth_fb_addr[0x2EE00], 0x201);
 	gspWaitForPSC0();
