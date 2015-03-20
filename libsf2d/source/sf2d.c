@@ -18,18 +18,9 @@ static u32 modelview_desc;
 //Matrix
 static float ortho_matrix[4*4];
 
-//stolen from staplebutt
-static void GPU_SetDummyTexEnv(u8 num)
-{
-	GPU_SetTexEnv(num,
-		GPU_TEVSOURCES(GPU_PREVIOUS, 0, 0),
-		GPU_TEVSOURCES(GPU_PREVIOUS, 0, 0),
-		GPU_TEVOPERANDS(0,0,0),
-		GPU_TEVOPERANDS(0,0,0),
-		GPU_REPLACE,
-		GPU_REPLACE,
-		0xFFFFFFFF);
-}
+//Static functions
+static void GPU_SetDummyTexEnv(u8 num);
+static void initOrthographicMatrixPICA(float *m, float left, float right, float bottom, float top, float near, float far);
 
 int sf2d_init()
 {
@@ -54,7 +45,7 @@ int sf2d_init()
 	
 	shaderProgramUse(&shader);
 	
-	//ortho_matrix = initOrtho...
+	initOrthographicMatrixPICA(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
@@ -138,4 +129,41 @@ void sf2d_end_frame()
 void sf2d_set_clear_color(u32 color)
 {
 	clear_color = color;
+}
+
+//stolen from staplebutt
+void GPU_SetDummyTexEnv(u8 num)
+{
+	GPU_SetTexEnv(num,
+		GPU_TEVSOURCES(GPU_PREVIOUS, 0, 0),
+		GPU_TEVSOURCES(GPU_PREVIOUS, 0, 0),
+		GPU_TEVOPERANDS(0,0,0),
+		GPU_TEVOPERANDS(0,0,0),
+		GPU_REPLACE,
+		GPU_REPLACE,
+		0xFFFFFFFF);
+}
+
+void initOrthographicMatrixPICA(float *m, float left, float right, float bottom, float top, float near, float far)
+{
+	//Z [-1, 0] (PICA shiz)
+	m[0x0] = 2.0f/(right-left);
+	m[0x1] = 0.0f;
+	m[0x2] = 0.0f;
+	m[0x3] = -(left-right)/(right-left);
+
+	m[0x4] = 0.0f;
+	m[0x5] = 2.0f/(top-bottom);
+	m[0x6] = 0.0f;
+	m[0x7] = -(bottom-top)/(top-bottom);
+
+	m[0x8] = 0.0f;
+	m[0x9] = 0.0f;
+	m[0xA] = -1.0f/(far-near);
+	m[0xB] = (1-far-near)/(far-near);
+
+	m[0xC] = 0.0f;
+	m[0xD] = 0.0f;
+	m[0xE] = 0.0f;
+	m[0xF] = 1.0f;
 }
