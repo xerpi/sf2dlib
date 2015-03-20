@@ -1,21 +1,25 @@
+; setup constants
+	.const c20, 0.0, 1.0, 1.0, 1.0
+ 
 ; setup outmap
-	.out o0, result.position,  0xF
-	.out o1, result.color,     0xF
-	.out o2, result.texcoord0, 0x3
+	.out o0, result.position, 0xF
+	.out o1, result.color, 0xF
 
-; Input attribute registers (v0-v7):
-;	v0: vertex   (xyzw)
-;	v1: texcoord (xyzw)
-;	v2: color    (xyzw)
+; setup uniform map (not required)
+	.uniform c0, c3, projection
+	.uniform c4, c7, modelview
+
+	.vsh vmain, end_vmain
 
 ;code
 	vmain:
-		; result.pos
-		mov o0, v0 (0x5)
-		; result.texcoord
-		mov o1, v1 (0x5)
+		; result.pos = projMtx * in.pos
+		dp4 o0, c0, v0 (0x0)
+		dp4 o0, c1, v0 (0x1)
+		dp4 o0, c2, v0 (0x2)
+		dp4 o0, c3, v0 (0x3)
 		; result.color
-		mov o2, v2 (0x5)
+		mov o1, v1 (0x5)
 		nop
 		end
 	end_vmain:

@@ -11,8 +11,12 @@ static u32 *gpu_fb_addr = (u32 *)0x1F119400;
 //GPU depth buffer address
 static u32 *gpu_depth_fb_addr = (u32 *)0x1F370800;
 //Shader stuff
-static DVLB_s* dvlb;
+static DVLB_s *dvlb;
 static shaderProgram_s shader;
+static u32 projection_desc;
+static u32 modelview_desc;
+//Matrix
+static float ortho_matrix[4*4];
 
 //stolen from staplebutt
 static void GPU_SetDummyTexEnv(u8 num)
@@ -39,11 +43,18 @@ int sf2d_init()
 	
 	GPU_Reset(NULL, gpu_cmd, GPU_CMD_SIZE);
 	
-	//Load the shader
+	//Setup the shader
 	dvlb = DVLB_ParseFile((u32 *)shader_vsh_shbin, shader_vsh_shbin_size);
 	shaderProgramInit(&shader);
 	shaderProgramSetVsh(&shader, &dvlb->DVLE[0]);
+	
+	//Get shader uniform descriptors
+	projection_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "projection");
+	modelview_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "modelview");
+	
 	shaderProgramUse(&shader);
+	
+	//ortho_matrix = initOrtho...
 
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
@@ -100,6 +111,8 @@ void sf2d_start_frame()
 	GPU_SetDummyTexEnv(3);
 	GPU_SetDummyTexEnv(4);
 	GPU_SetDummyTexEnv(5);
+	
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, projection_desc, (void *)ortho_matrix, 4);
 }
 
 void sf2d_end_frame()
