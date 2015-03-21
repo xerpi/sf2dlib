@@ -108,8 +108,8 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(2, 2, GPU_FLOAT),
-		0xFF,
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
 		(u32[]){0x0}, // buffer offsets (placeholders)

@@ -38,7 +38,7 @@ int main()
 	int i, j;
 	for (i = 0; i < 64; i++) {
 		for (j = 0; j < 64; j++) {
-			((u32 *)tex->data)[j + 64*i] = RGBA8(0xFF, 0x00, 0x00, 0xFF);
+			((u32 *)tex->data)[j + 64*i] = RGBA8(0xFF, 0xFF, 0x00, 0xFF);
 		}
 	}
 
@@ -84,7 +84,7 @@ void draw_triangle()
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)triangle_data),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
-		0xFF,
+		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
 		(u32[]){0x0}, // buffer offsets (placeholders)

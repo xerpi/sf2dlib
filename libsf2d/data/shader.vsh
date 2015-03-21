@@ -17,7 +17,7 @@
 		dp4 o0, c2, v0 (0x2)
 		dp4 o0, c3, v0 (0x3)
 		; result.texcoord = in.texcoord
-		mov o2, v2 (0x5)
+		mov o2, v1 (0x5)
 		; result.color
 		mov o1, v1 (0x5)
 		nop

@@ -34,7 +34,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
-		0xFF,
+		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
 		(u32[]){0x0}, // buffer offsets (placeholders)
