@@ -100,8 +100,7 @@ clean:
 #---------------------------------------------------------------------------------
 install: $(BUILD)
 	@cp $(OUTPUT) $(CTRULIB)/lib
-	@mkdir -p $(CTRULIB)/include/sf2d
-	@cp include/* $(CTRULIB)/include/sf2d
+	@cp include/sf2d.h $(CTRULIB)/include
 	@echo "Installed!"
 
 #---------------------------------------------------------------------------------
