@@ -70,7 +70,7 @@ void sf2d_free_texture(sf2d_texture *texture)
 
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_alloc(4 * sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 
 	int w = texture->width;
 	int h = texture->height;
@@ -87,9 +87,10 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 
 	GPU_SetTextureEnable(GPU_TEXUNIT0);
 
-	GPU_SetTexEnv(0,
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
 		GPU_TEVOPERANDS(0, 0, 0),
 		GPU_TEVOPERANDS(0, 0, 0),
 		GPU_MODULATE, GPU_MODULATE,

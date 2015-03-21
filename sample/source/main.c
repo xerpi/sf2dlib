@@ -38,7 +38,7 @@ int main()
 	int i, j;
 	for (i = 0; i < 64; i++) {
 		for (j = 0; j < 64; j++) {
-			((u32 *)tex->data)[j + 64*i] = RGBA8(0xFF, 0xFF, 0x00, 0xFF);
+			((u32 *)tex->data)[j + 64*i] = RGBA8(0, 255, 255, 100);
 		}
 	}
 
@@ -53,7 +53,7 @@ int main()
 		sf2d_draw_rectangle(300, 150, 80, 60, RGBA8(0x00, 0x00, 0xFF, 0xFF));
 		sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
 
-		sf2d_draw_texture(tex, 100, 100);
+		sf2d_draw_texture(tex, 180, 100);
 
 		if (hidKeysDown() & KEY_START) break;
 

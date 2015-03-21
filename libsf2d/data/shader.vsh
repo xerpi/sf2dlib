@@ -1,7 +1,10 @@
+; setup constants
+	.const c20, 0.0, 0.0, 0.0, 1.0
+
 ; setup outmap
 	.out o0, result.position, 0xF
-	.out o1, result.color, 0xF
-	.out o2, result.texcoord0, 0x3
+	.out o1, result.texcoord0, 0x3
+	.out o2, result.color, 0xF
 
 ; setup uniform map (not required)
 	.uniform c0, c3, projection
@@ -17,9 +20,9 @@
 		dp4 o0, c2, v0 (0x2)
 		dp4 o0, c3, v0 (0x3)
 		; result.texcoord = in.texcoord
-		mov o2, v1 (0x5)
-		; result.color
 		mov o1, v1 (0x5)
+		; result.color = in.color
+		mov o2, v1 (0x5)
 		nop
 		end
 	end_vmain:

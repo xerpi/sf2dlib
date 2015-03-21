@@ -93,19 +93,18 @@ void sf2d_start_frame()
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 	GPU_SetBlendingColor(0,0,0,0);
-	GPU_SetDepthTestAndWriteMask(true, GPU_GREATER, GPU_WRITE_ALL);	
+	GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
 	GPUCMD_AddMaskedWrite(GPUREG_0062, 0x1, 0);
 	GPUCMD_AddWrite(GPUREG_0118, 0);
-
-	GPU_SetAlphaBlending(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
-	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
 
 	GPU_SetAlphaBlending(
 		GPU_BLEND_ADD,
 		GPU_BLEND_ADD,
-		GPU_SRC_COLOR, GPU_DST_COLOR,
-		GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA
+		GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA,
+		GPU_ONE, GPU_ZERO
 	);
+
+	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
 	
 	GPU_SetDummyTexEnv(1);
 	GPU_SetDummyTexEnv(2);
@@ -134,11 +133,22 @@ void sf2d_end_frame()
 	gspWaitForEvent(GSPEVENT_VBlank0, true);
 }
 
-void *sf2d_pool_alloc(u32 size)
+void *sf2d_pool_malloc(u32 size)
 {
 	if ((pool_index + size) < POOL_SIZE) {
 		void *addr = (void *)((u32)pool_addr + pool_index);
 		pool_index += size;
+		return addr;
+	}
+	return NULL;
+}
+
+void *sf2d_pool_memalign(u32 size, u32 alignment)
+{
+	u32 new_index = (pool_index + alignment - 1) & ~(alignment - 1);
+	if ((new_index + size) < POOL_SIZE) {
+		void *addr = (void *)((u32)pool_addr + new_index);
+		pool_index = new_index + size;
 		return addr;
 	}
 	return NULL;

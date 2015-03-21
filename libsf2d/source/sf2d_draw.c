@@ -3,7 +3,7 @@
 
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 {
-	sf2d_vertex_pos_col *vertices = sf2d_pool_alloc(4 * sizeof(sf2d_vertex_pos_col));
+	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
 	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
