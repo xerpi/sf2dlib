@@ -20,6 +20,16 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
 
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_MODULATE, GPU_MODULATE,
+		0xFFFFFFFF
+	);
+
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),

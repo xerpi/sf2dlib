@@ -85,15 +85,16 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
 	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
 
-	/*
-	GPU_SetTexture(
-		GPU_TEXUNIT unit,
-		u32* data,
-		u16 width,
-		u16 height,
-		u32 param,
-		GPU_TEXCOLOR colorType
-	);*/
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
+
+	GPU_SetTexEnv(0,
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_MODULATE, GPU_MODULATE,
+		0xFFFFFFFF
+	);
 
 	GPU_SetTexture(
 		GPU_TEXUNIT0,
@@ -104,11 +105,10 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 		texture->pixel_format
 	);
 
-
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(2, 2, GPU_FLOAT),
 		0xFF,
 		0x10,
 		1, //number of buffers
@@ -117,6 +117,5 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	GPU_SetTextureEnable(GPU_TEXUNIT0);
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
