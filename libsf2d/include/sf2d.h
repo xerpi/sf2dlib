@@ -15,6 +15,11 @@ typedef enum {
 } sf2d_place;
 
 // Structs
+
+typedef struct {
+	float u, v;
+} sf2d_vector_2f;
+
 typedef struct {
 	float x, y, z;
 } sf2d_vector_3f;
@@ -27,6 +32,11 @@ typedef struct {
 	sf2d_vector_3f position;
 	sf2d_vector_4f color;
 } sf2d_vertex_pos_col;
+
+typedef struct {
+	sf2d_vector_3f position;
+	sf2d_vector_2f texcoord;
+} sf2d_vertex_pos_tex;
 
 typedef struct {
 	sf2d_place place;
@@ -53,5 +63,6 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
 // Texture
 sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
 void sf2d_free_texture(sf2d_texture *texture);
+void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
 
 #endif

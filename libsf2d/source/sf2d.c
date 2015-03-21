@@ -77,8 +77,8 @@ void sf2d_start_frame()
 {
 	GPUCMD_SetBufferOffset(0);
 	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
-					(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
-					0, 0, 240*2, 400);
+		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
+		0, 0, 240*2, 400);
 	GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_NONE);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);

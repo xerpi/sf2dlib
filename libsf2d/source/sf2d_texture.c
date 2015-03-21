@@ -67,3 +67,58 @@ void sf2d_free_texture(sf2d_texture *texture)
 		free(texture);
 	}
 }
+
+void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
+{
+	sf2d_vertex_pos_tex *vertices = linearAlloc(4 * sizeof(sf2d_vertex_pos_tex));
+
+	int w = texture->width;
+	int h = texture->height;
+
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){1.0f, 0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
+	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
+
+	/*
+	GPU_SetTexture(
+		GPU_TEXUNIT unit,
+		u32* data,
+		u16 width,
+		u16 height,
+		u32 param,
+		GPU_TEXCOLOR colorType
+	);*/
+
+	GPU_SetTexture(
+		GPU_TEXUNIT0,
+		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		texture->width,
+		texture->height,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pixel_format
+	);
+
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFF,
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+
+	//GPU_SetTextureEnable(GPU_TEXUNIT0);
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+
+	linearFree(vertices);
+}

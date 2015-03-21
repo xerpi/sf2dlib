@@ -30,6 +30,8 @@ int main()
 	u32 *p = linearAlloc(sizeof(triangle_mesh));
 	memcpy(p, triangle_mesh, sizeof(triangle_mesh));
 
+	sf2d_texture *tex = sf2d_create_texture(64, 64, GPU_RGBA8, SF2D_PLACE_VRAM);
+
 	while (aptMainLoop()) {
 		sf2d_start_frame();
 		hidScanInput();
@@ -48,7 +50,15 @@ int main()
 		
 		GPU_DrawArray(GPU_TRIANGLES, sizeof(triangle_mesh)/sizeof(triangle_mesh[0]));
 		
+		/*
 		sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
+
+		sf2d_draw_texture(tex, 100, 100);
+
+		sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
+		sf2d_draw_rectangle(100, 100, 20, 60, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
+		sf2d_draw_rectangle(80, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
+		*/
 
 		if (hidKeysDown() & KEY_START) break;
 
@@ -56,6 +66,7 @@ int main()
 	}
 	
 	linearFree(p);
+	sf2d_free_texture(tex);
 	
 	sf2d_fini();
 	return 0;
