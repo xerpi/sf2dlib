@@ -55,6 +55,9 @@ int sf2d_fini();
 void sf2d_start_frame();
 void sf2d_end_frame();
 
+void *sf2d_pool_alloc(u32 size);
+void sf2d_pool_reset();
+
 void sf2d_set_clear_color(u32 color);
 
 // Draw functions

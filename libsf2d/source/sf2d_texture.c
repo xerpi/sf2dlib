@@ -70,7 +70,7 @@ void sf2d_free_texture(sf2d_texture *texture)
 
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 {
-	sf2d_vertex_pos_tex *vertices = linearAlloc(4 * sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_alloc(4 * sizeof(sf2d_vertex_pos_tex));
 
 	int w = texture->width;
 	int h = texture->height;
@@ -117,8 +117,6 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	//GPU_SetTextureEnable(GPU_TEXUNIT0);
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
-
-	linearFree(vertices);
 }

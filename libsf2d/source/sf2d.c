@@ -2,11 +2,15 @@
 #include "sf2d_private.h"
 #include "shader_vsh_shbin.h"
 
-#define GPU_CMD_SIZE 0x40000
+#define GPU_CMD_SIZE  0x40000
+#define POOL_SIZE     0x10000
 
 static int sf2d_initialized = 0;
 static u32 clear_color = RGBA8(0x00, 0x00, 0x00, 0xFF);
 static u32 *gpu_cmd = NULL;
+// Temporary memory pool
+static void *pool_addr = NULL;
+static u32 pool_index = 0;
 //GPU framebuffer address
 static u32 *gpu_fb_addr = NULL;
 //GPU depth buffer address
@@ -27,6 +31,7 @@ int sf2d_init()
 	gpu_fb_addr       = vramMemAlign(400*240*8, 0x100);
 	gpu_depth_fb_addr = vramMemAlign(400*240*8, 0x100);
 	gpu_cmd           = linearAlloc(GPU_CMD_SIZE * 4);
+	pool_addr         = linearAlloc(POOL_SIZE);
 	
 	gfxInitDefault();
 	GPU_Init(NULL);
@@ -50,6 +55,8 @@ int sf2d_init()
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
 	gspWaitForP3D();
+
+	sf2d_pool_reset();
 	
 	sf2d_initialized = 1;
 	
@@ -63,7 +70,8 @@ int sf2d_fini()
 	gfxExit();
 	shaderProgramFree(&shader);
 	DVLB_Free(dvlb);
-	
+
+	linearFree(pool_addr);
 	linearFree(gpu_cmd);
 	vramFree(gpu_fb_addr);
 	vramFree(gpu_depth_fb_addr);
@@ -75,6 +83,7 @@ int sf2d_fini()
 
 void sf2d_start_frame()
 {
+	sf2d_pool_reset();
 	GPUCMD_SetBufferOffset(0);
 	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
 		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
@@ -133,6 +142,21 @@ void sf2d_end_frame()
 	gfxSwapBuffersGpu();
 
 	gspWaitForEvent(GSPEVENT_VBlank0, true);
+}
+
+void *sf2d_pool_alloc(u32 size)
+{
+	if ((pool_index + size) < POOL_SIZE) {
+		void *addr = (void *)((u32)pool_addr + pool_index);
+		pool_index += size;
+		return addr;
+	}
+	return NULL;
+}
+
+void sf2d_pool_reset()
+{
+	pool_index = 0;
 }
 
 void sf2d_set_clear_color(u32 color)
