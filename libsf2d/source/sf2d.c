@@ -1,3 +1,4 @@
+#include <string.h>
 #include "sf2d.h"
 #include "shader_vsh_shbin.h"
 
@@ -20,7 +21,7 @@ static float ortho_matrix[4*4];
 
 //Static functions
 static void GPU_SetDummyTexEnv(u8 num);
-static void initOrthographicMatrixPICA(float *m, float left, float right, float bottom, float top, float near, float far);
+static void initOrthographicMatrix(float *m, float left, float right, float bottom, float top, float near, float far);
 
 int sf2d_init()
 {
@@ -45,7 +46,7 @@ int sf2d_init()
 	
 	shaderProgramUse(&shader);
 	
-	initOrthographicMatrixPICA(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
+	initOrthographicMatrix(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
@@ -76,7 +77,7 @@ void sf2d_start_frame()
 					(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
 					0, 0, 240*2, 400);
 	GPU_DepthMap(-1.0f, 0.0f);
-	GPU_SetFaceCulling(GPU_CULL_BACK_CCW);
+	GPU_SetFaceCulling(GPU_CULL_NONE);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 	GPU_SetBlendingColor(0,0,0,0);
@@ -86,17 +87,24 @@ void sf2d_start_frame()
 
 	GPU_SetAlphaBlending(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
 	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
-	
-	/*GPU_SetTextureEnable(GPU_TEXUNIT0);
 
-	GPU_SetTexEnv(0,
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVOPERANDS(0,0,0),
-		GPU_TEVOPERANDS(0,0,0),
+	GPU_SetAlphaBlending(
+		GPU_BLEND_ADD,
+		GPU_BLEND_ADD,
+		GPU_SRC_COLOR, GPU_DST_COLOR,
+		GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA
+	);
+	
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(GPU_MODULATE, GPU_MODULATE, GPU_MODULATE),
+		GPU_TEVOPERANDS(GPU_MODULATE, GPU_MODULATE, GPU_MODULATE),
 		GPU_MODULATE, GPU_MODULATE,
-		0xFFFFFFFF);*/
-	GPU_SetDummyTexEnv(0);
+		0xFFFFFFFF
+	);
+	
 	GPU_SetDummyTexEnv(1);
 	GPU_SetDummyTexEnv(2);
 	GPU_SetDummyTexEnv(3);
@@ -144,26 +152,70 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
-void initOrthographicMatrixPICA(float *m, float left, float right, float bottom, float top, float near, float far)
+static void loadIdentity44(float* m)
 {
-	//Z [-1, 0] (PICA shiz)
-	m[0x0] = 2.0f/(right-left);
-	m[0x1] = 0.0f;
-	m[0x2] = 0.0f;
-	m[0x3] = -(left-right)/(right-left);
+	if (!m) return;
+	memset(m, 0x00, 16*4);
+	m[0] = m[5] = m[10] = m[15] = 1.0f;
+}
 
-	m[0x4] = 0.0f;
-	m[0x5] = 2.0f/(top-bottom);
-	m[0x6] = 0.0f;
-	m[0x7] = -(bottom-top)/(top-bottom);
+static void multMatrix44(float *m1, float *m2, float *m) //4x4
+{
+	int i, j;
+	for (i=0; i < 4; i++)
+		for(j = 0; j<4; j++)
+			m[i+j*4] = (m1[0+j*4]*m2[i+0*4])+(m1[1+j*4]*m2[i+1*4])+(m1[2+j*4]*m2[i+2*4])+(m1[3+j*4]*m2[i+3*4]);
+}
 
-	m[0x8] = 0.0f;
-	m[0x9] = 0.0f;
-	m[0xA] = -1.0f/(far-near);
-	m[0xB] = (1-far-near)/(far-near);
+static void initOrthographicMatrix(float *m, float left, float right, float bottom, float top, float near, float far)
+{
+	/*  ______________________
+	   |                      |
+	   |                      |
+	   |                      |
+	   |                      |
+	   |                      |
+	   |______________________| ^
+	                            | x
+	                       <-----
+	                         y
+	*/
+	
+	//Mirror
+	//right = 400-right;
+	//left = 400-left;
+	//top = 240-top;
+	//bottom = 240-bottom;
+	
+	float mp[4*4];
+	
+	mp[0x0] = 2.0f/(right-left);
+	mp[0x1] = 0.0f;
+	mp[0x2] = 0.0f;
+	mp[0x3] = -(right+left)/(right-left);
 
-	m[0xC] = 0.0f;
-	m[0xD] = 0.0f;
-	m[0xE] = 0.0f;
-	m[0xF] = 1.0f;
+	mp[0x4] = 0.0f;
+	mp[0x5] = 2.0f/(top-bottom);
+	mp[0x6] = 0.0f;
+	mp[0x7] = -(top+bottom)/(top-bottom);
+
+	mp[0x8] = 0.0f;
+	mp[0x9] = 0.0f;
+	mp[0xA] = -2.0f/(far-near);
+	mp[0xB] = (far+near)/(far-near);
+
+	mp[0xC] = 0.0f;
+	mp[0xD] = 0.0f;
+	mp[0xE] = 0.0f;
+	mp[0xF] = 1.0f;
+	
+	float mp2[4*4];
+	loadIdentity44(mp2);
+	mp2[0xA] = 0.5;
+	mp2[0xB] = -0.5;
+
+	//Convert Z [-1, 1] to [-1, 0] (PICA shiz)
+	multMatrix44(mp2, mp, m);
+	
+	//rotateMatrixZ(m, M_PI/2, false);
 }

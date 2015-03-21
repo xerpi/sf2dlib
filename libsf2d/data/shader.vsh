@@ -1,6 +1,3 @@
-; setup constants
-	.const c20, 0.0, 1.0, 1.0, 1.0
- 
 ; setup outmap
 	.out o0, result.position, 0xF
 	.out o1, result.color, 0xF

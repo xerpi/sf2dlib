@@ -3,22 +3,36 @@
 #include <sf2d/sf2d.h>
 
 typedef struct {
-	float x, y, z, w;
+	float x, y, z;
+} vector_3f;
+
+typedef struct {
+	float r, g, b, a;
 } vector_4f;
 
 typedef struct {
-	unsigned char r, g, b, a;
-} vector_4ub;
-
-typedef struct {
-	vector_4f position;
-	vector_4ub color;
+	vector_3f position;
+	vector_4f color;
 } vertex_pos_col;
 
-static const vertex_pos_col triangle_mesh[] __attribute__((aligned(128)))= {
-	{{-0.5f, -0.5f, +0.5f, 1.0f}, {0xFF, 0xFF, 0x00, 0x00}},
-	{{+0.5f, -0.5f, +0.5f, 1.0f}, {0x00, 0xFF, 0xFF, 0x00}},
-	{{+0.5f, +0.5f, +0.5f, 1.0f}, {0xFF, 0xFF, 0x00, 0x00}}
+/*      ______________________
+	   |                      |
+	   |                      |
+	   |                      |
+	   |                      |
+	   |                      |
+	   |______________________| ^
+	                            | x
+	                       <-----
+	                         y
+*/
+
+static const vertex_pos_col triangle_mesh[] __attribute__((aligned(128)))=
+{
+	//{y, x, z}, {r, g, b, a}
+	{{240.0f+60.0f, 120.0f,       0.5f}, {1.0f, 0.0f, 0.0f, 0.0f}},
+	{{240.0f-60.0f, 120.0f+60.0f, 0.5f}, {1.0f, 0.0f, 0.0f, 0.0f}},
+	{{240.0f-60.0f, 120.0f-60.0f, 0.5f}, {1.0f, 0.0f, 0.0f, 0.0f}},
 };
 
 static void GPU_DrawArrayDirectly(GPU_Primitive_t primitive, u8* data, u32 n)
@@ -46,9 +60,7 @@ static void GPU_DrawArrayDirectly(GPU_Primitive_t primitive, u8* data, u32 n)
 int main()
 {
 	sf2d_init();
-	sf2d_set_clear_color(RGBA8(0xFF, 0x00, 0x00, 0xFF));
-	
-	int x = 0;
+	sf2d_set_clear_color(RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 
 	while (aptMainLoop()) {
 		sf2d_start_frame();
@@ -57,28 +69,16 @@ int main()
 		GPU_SetAttributeBuffers(
 			2, // number of attributes
 			(u32*)osConvertVirtToPhys((u32)triangle_mesh),
-			GPU_ATTRIBFMT(0, 4, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE), // (float){x, y, z, w}, (uchar){r, g, b, a}
+			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT), // (float){x, y, z}, (float){r, g, b, a}
 			0xFF,
 			0x10,
-			2, //number of buffers
-			(u32[]){0x0, 0x0}, // buffer offsets (placeholders)
-			(u64[]){0x0, 0x1}, // attribute permutations for each buffer
-			(u8[]){1, 1} // number of attributes for each buffer
+			1, //number of buffers
+			(u32[]){0x0}, // buffer offsets (placeholders)
+			(u64[]){0x10}, // attribute permutations for each buffer
+			(u8[]){2} // number of attributes for each buffer
 		);
 		
-		/*
-		GPU_SetAttributeBuffers(u8 totalAttributes,
-			u32* baseAddress,
-			u64 attributeFormats,
-			u16 attributeMask,
-			u64 attributePermutation,
-			u8 numBuffers,
-			u32 bufferOffsets[],
-			u64 bufferPermutations[],
-			u8 bufferNumAttributes[]);
-		*/
-		
-		GPU_DrawArrayDirectly(GPU_TRIANGLES, (u8 *)triangle_mesh, sizeof(triangle_mesh)/sizeof(triangle_mesh[0]));
+		GPU_DrawArrayDirectly(GPU_TRIANGLES, triangle_mesh, sizeof(triangle_mesh)/sizeof(triangle_mesh[0]));
 		
 		if (hidKeysDown() & KEY_START) break;
 
