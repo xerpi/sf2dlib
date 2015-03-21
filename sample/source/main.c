@@ -2,19 +2,6 @@
 #include <3ds.h>
 #include <sf2d.h>
 
-typedef struct {
-	float x, y, z;
-} vector_3f;
-
-typedef struct {
-	float r, g, b, a;
-} vector_4f;
-
-typedef struct {
-	vector_3f position;
-	vector_4f color;
-} vertex_pos_col;
-
 /*      ______________________
 	   |                      |
 	   |                      |
@@ -27,7 +14,7 @@ typedef struct {
 	                         y
 */
 
-static const vertex_pos_col triangle_mesh[] =
+static const sf2d_vertex_pos_col triangle_mesh[] =
 {
 	//{y, x, z}, {r, g, b, a}
 	{{240.0f+60.0f, 120.0f,       0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
@@ -60,6 +47,8 @@ int main()
 		);
 		
 		GPU_DrawArray(GPU_TRIANGLES, sizeof(triangle_mesh)/sizeof(triangle_mesh[0]));
+		
+		sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 
 		if (hidKeysDown() & KEY_START) break;
 
