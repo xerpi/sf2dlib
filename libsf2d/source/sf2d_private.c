@@ -110,3 +110,15 @@ void initOrthographicMatrix(float *m, float left, float right, float bottom, flo
 	
 	//rotateMatrixZ(m, M_PI/2, false);
 }
+
+//Grabbed from: http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+unsigned int next_pow2(unsigned int v)
+{
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    return v+1;
+}

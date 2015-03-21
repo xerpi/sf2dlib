@@ -10,5 +10,6 @@ void multMatrix44(float *m1, float *m2, float *m);
 void initOrthographicMatrix(float *m, float left, float right, float bottom, float top, float near, float far);
 void SetUniformMatrix(u32 startreg, float *m);
 
+unsigned int next_pow2(unsigned int v);
 
 #endif
