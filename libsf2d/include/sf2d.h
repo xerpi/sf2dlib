@@ -68,6 +68,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
 // Texture
 sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
 void sf2d_free_texture(sf2d_texture *texture);
+void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad);
 void texture_tile32(const u32 *src, u32 *dst, int width, int height);

@@ -68,6 +68,30 @@ void sf2d_free_texture(sf2d_texture *texture)
 	}
 }
 
+void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
+{
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
+
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_MODULATE, GPU_MODULATE,
+		0xFFFFFFFF
+	);
+
+	GPU_SetTexture(
+		unit,
+		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		texture->width,
+		texture->height,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pixel_format
+	);
+}
+
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
@@ -85,26 +109,7 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
 	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
 
-	GPU_SetTextureEnable(GPU_TEXUNIT0);
-
-	GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_MODULATE, GPU_MODULATE,
-		0xFFFFFFFF
-	);
-
-	GPU_SetTexture(
-		GPU_TEXUNIT0,
-		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		texture->width,
-		texture->height,
-		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
-		texture->pixel_format
-	);
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
@@ -150,26 +155,7 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
 		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
 
-	GPU_SetTextureEnable(GPU_TEXUNIT0);
-
-	GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
-		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_MODULATE, GPU_MODULATE,
-		0xFFFFFFFF
-	);
-
-	GPU_SetTexture(
-		GPU_TEXUNIT0,
-		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		texture->width,
-		texture->height,
-		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
-		texture->pixel_format
-	);
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
