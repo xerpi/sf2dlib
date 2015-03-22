@@ -120,3 +120,28 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
+
+static const u8 tile_order[] = {
+	0,1,8,9,2,3,10,11,16,17,24,25,18,19,26,27,4,5,
+	12,13,6,7,14,15,20,21,28,29,22,23,30,31,32,33,
+	40,41,34,35,42,43,48,49,56,57,50,51,58,59,36,
+	37,44,45,38,39,46,47,52,53,60,61,54,55,62,63
+};
+
+//Stolen from smealum's portal3DS
+void texture_tile32(u32 *src, u32 *dst, int width, int height)
+{
+	if (!src || !dst) return;
+
+	int i, j, k, l = 0;
+	for (j = 0; j < height; j+=8) {
+		for (i = 0; i < width; i+=8) {
+			for (k = 0; k < 8*8; k++) {
+				int x = i + tile_order[k]%8;
+				int y = j + (tile_order[k] - (x-i))/8;
+				u32 v = src[x + (height-1-y)*width];
+				dst[l++] = __builtin_bswap32(v);
+			}
+		}
+	}
+}

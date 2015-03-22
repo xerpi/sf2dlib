@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include "sf2d_private.h"
 
 //stolen from staplebutt
@@ -14,101 +15,112 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
-void loadIdentity44(float *m)
+void matrix_gpu_set_uniform(float *m, u32 startreg)
 {
-	if (!m) return;
-	memset(m, 0x00, 16*4);
-	m[0] = m[5] = m[10] = m[15] = 1.0f;
-}
+	float mu[4*4];
 
-void multMatrix44(float *m1, float *m2, float *m)
-{
 	int i, j;
 	for (i = 0; i < 4; i++) {
-		for(j = 0; j < 4; j++) {
-			m[i+j*4] = (m1[0+j*4]*m2[i+0*4]) + (m1[1+j*4]*m2[i+1*4]) + (m1[2+j*4]*m2[i+2*4]) + (m1[3+j*4]*m2[i+3*4]);
+		for (j = 0; j < 4; j++) {
+			mu[i*4 + j] = m[i*4 + (3-j)];
+		}
+	}
+
+	GPU_SetFloatUniform(GPU_VERTEX_SHADER, startreg, (u32 *)mu, 4);
+}
+
+void matrix_copy(float *dst, float *src)
+{
+	memcpy(dst, src, sizeof(float)*4*4);
+}
+
+void matrix_identity4x4(float *m)
+{
+	m[0] = m[5] = m[10] = m[15] = 1.0f;
+	m[1] = m[2] = m[3] = 0.0f;
+	m[4] = m[6] = m[7] = 0.0f;
+	m[8] = m[9] = m[11] = 0.0f;
+	m[12] = m[13] = m[14] = 0.0f;
+}
+
+void matrix_mult4x4(float *src1, float *src2, float *dst)
+{
+	int i, j, k;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			dst[i*4 + j] = 0.0f;
+			for (k = 0; k < 4; k++) {
+				dst[i*4 + j] += src1[i*4 + k]*src2[k*4 + j];
+			}
 		}
 	}
 }
 
-void SetUniformMatrix(u32 startreg, float* m)
+void matrix_rotate_z(float *m, float rad)
 {
-	float param[16];
+	float mr[4*4], mt[4*4];
+	matrix_identity4x4(mr);
 
-	param[0x0]=m[3]; //w
-	param[0x1]=m[2]; //z
-	param[0x2]=m[1]; //y
-	param[0x3]=m[0]; //x
+	float c = cosf(rad);
+	float s = sinf(rad);
 
-	param[0x4]=m[7];
-	param[0x5]=m[6];
-	param[0x6]=m[5];
-	param[0x7]=m[4];
-	
-	param[0x8]=m[11];
-	param[0x9]=m[10];
-	param[0xa]=m[9];
-	param[0xb]=m[8];
+	mr[0] = c;
+	mr[1] = -s;
+	mr[4] = s;
+	mr[5] = c;
 
-	param[0xc]=m[15];
-	param[0xd]=m[14];
-	param[0xe]=m[13];
-	param[0xf]=m[12];
-
-	GPU_SetFloatUniform(GPU_VERTEX_SHADER, startreg, (u32*)param, 4);
+	matrix_mult4x4(mr, m, mt);
+	matrix_copy(m, mt);
 }
 
-void initOrthographicMatrix(float *m, float left, float right, float bottom, float top, float near, float far)
+void matrix_swap_xy(float *m)
 {
-	/*  ______________________
-	   |                      |
-	   |                      |
-	   |                      |
-	   |                      |
-	   |                      |
-	   |______________________| ^
-	                            | x
-	                       <-----
-	                         y
-	*/
-	
-	//Mirror
-	//right = 400-right;
-	//left = 400-left;
-	//top = 240-top;
-	//bottom = 240-bottom;
-	
-	float mp[4*4];
-	
-	mp[0x0] = 2.0f/(right-left);
-	mp[0x1] = 0.0f;
-	mp[0x2] = 0.0f;
-	mp[0x3] = -(right+left)/(right-left);
+	float ms[4*4], mt[4*4];
+	matrix_identity4x4(ms);
 
-	mp[0x4] = 0.0f;
-	mp[0x5] = 2.0f/(top-bottom);
-	mp[0x6] = 0.0f;
-	mp[0x7] = -(top+bottom)/(top-bottom);
+	ms[0] = 0.0f;
+	ms[1] = 1.0f;
+	ms[4] = 1.0f;
+	ms[5] = 0.0f;
 
-	mp[0x8] = 0.0f;
-	mp[0x9] = 0.0f;
-	mp[0xA] = -2.0f/(far-near);
-	mp[0xB] = (far+near)/(far-near);
+	matrix_mult4x4(ms, m, mt);
+	matrix_copy(m, mt);
+}
 
-	mp[0xC] = 0.0f;
-	mp[0xD] = 0.0f;
-	mp[0xE] = 0.0f;
-	mp[0xF] = 1.0f;
+void matrix_init_orthographic(float *m, float left, float right, float bottom, float top, float near, float far)
+{
+	float mo[4*4], mp[4*4];
 	
-	float mp2[4*4];
-	loadIdentity44(mp2);
-	mp2[0xA] = 0.5;
-	mp2[0xB] = -0.5;
+	mo[0x0] = 2.0f/(right-left);
+	mo[0x1] = 0.0f;
+	mo[0x2] = 0.0f;
+	mo[0x3] = -(right+left)/(right-left);
+
+	mo[0x4] = 0.0f;
+	mo[0x5] = 2.0f/(top-bottom);
+	mo[0x6] = 0.0f;
+	mo[0x7] = -(top+bottom)/(top-bottom);
+
+	mo[0x8] = 0.0f;
+	mo[0x9] = 0.0f;
+	mo[0xA] = -2.0f/(far-near);
+	mo[0xB] = (far+near)/(far-near);
+
+	mo[0xC] = 0.0f;
+	mo[0xD] = 0.0f;
+	mo[0xE] = 0.0f;
+	mo[0xF] = 1.0f;
+	
+	matrix_identity4x4(mp);
+	mp[0xA] = 0.5;
+	mp[0xB] = -0.5;
 
 	//Convert Z [-1, 1] to [-1, 0] (PICA shiz)
-	multMatrix44(mp2, mp, m);
-	
-	//rotateMatrixZ(m, M_PI/2, false);
+	matrix_mult4x4(mp, mo, m);
+	// Rotate 180 degrees
+	matrix_rotate_z(m, M_PI);
+	// Swap X and Y axis
+	matrix_swap_xy(m);
 }
 
 //Grabbed from: http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2

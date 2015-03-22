@@ -2,24 +2,19 @@
 #include <3ds.h>
 #include <sf2d.h>
 
-/*      ______________________
-	   |                      |
-	   |                      |
-	   |                      |
-	   |                      |
-	   |                      |
-	   |______________________| ^
-	                            | x
-	                       <-----
-	                         y
-*/
+extern const struct {
+  unsigned int 	 width;
+  unsigned int 	 height;
+  unsigned int 	 bytes_per_pixel;
+  unsigned char	 pixel_data[];
+} citra_img;
+
 
 static const sf2d_vertex_pos_col triangle_mesh[] =
 {
-	//{y, x, z}, {r, g, b, a}
-	{{240.0f+60.0f, 120.0f,       0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-	{{240.0f-60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-	{{240.0f-60.0f, 120.0f-60.0f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+	{{200.0f,       120.0f-60.0f,       0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+	{{200.0f-60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+	{{200.0f+60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 };
 
 static void *triangle_data = NULL;
@@ -33,14 +28,9 @@ int main()
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
-	sf2d_texture *tex = sf2d_create_texture(64, 64, GPU_RGBA8, SF2D_PLACE_VRAM);
-	//Fill texture
-	int i, j;
-	for (i = 0; i < 64; i++) {
-		for (j = 0; j < 64; j++) {
-			((u32 *)tex->data)[j + 64*i] = RGBA8(0, 255, 255, 100);
-		}
-	}
+	sf2d_texture *tex = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	texture_tile32((u32 *)citra_img.pixel_data, (u32 *)tex->data, citra_img.width, citra_img.height);
+
 
 	while (aptMainLoop()) {
 		sf2d_start_frame();
@@ -48,12 +38,14 @@ int main()
 
 		draw_triangle();
 		
-		sf2d_draw_rectangle(200, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
+		sf2d_draw_rectangle(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
 		sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
-		sf2d_draw_rectangle(300, 150, 80, 60, RGBA8(0x00, 0x00, 0xFF, 0xFF));
+		sf2d_draw_rectangle(400-20, 240-20, 400, 240, RGBA8(0x00, 0x00, 0xFF, 0xFF));
 		sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
 
-		sf2d_draw_texture(tex, 180, 100);
+		sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
+
+		sf2d_draw_texture(tex, 50, 0);
 
 		if (hidKeysDown() & KEY_START) break;
 

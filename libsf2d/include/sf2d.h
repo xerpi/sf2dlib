@@ -62,11 +62,13 @@ void sf2d_pool_reset();
 void sf2d_set_clear_color(u32 color);
 
 // Draw functions
+void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color);
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
 
 // Texture
 sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
 void sf2d_free_texture(sf2d_texture *texture);
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
+void texture_tile32(u32 *src, u32 *dst, int width, int height);
 
 #endif

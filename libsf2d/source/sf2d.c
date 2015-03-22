@@ -49,8 +49,8 @@ int sf2d_init()
 	
 	shaderProgramUse(&shader);
 	
-	initOrthographicMatrix(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
-	SetUniformMatrix(projection_desc, ortho_matrix);
+	matrix_init_orthographic(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
+	matrix_gpu_set_uniform(ortho_matrix, projection_desc);
 
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
