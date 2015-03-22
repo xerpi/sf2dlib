@@ -15,6 +15,13 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
+void vector_mult_matrix4x4(const float *msrc, const sf2d_vector_3f *vsrc, sf2d_vector_3f *vdst)
+{
+	vdst->x = msrc[0*4 + 0]*vsrc->x + msrc[0*4 + 1]*vsrc->y + msrc[0*4 + 2]*vsrc->z + msrc[0*4 + 3];
+	vdst->y = msrc[1*4 + 0]*vsrc->x + msrc[1*4 + 1]*vsrc->y + msrc[1*4 + 2]*vsrc->z + msrc[1*4 + 3];
+	vdst->z = msrc[2*4 + 0]*vsrc->x + msrc[2*4 + 1]*vsrc->y + msrc[2*4 + 2]*vsrc->z + msrc[2*4 + 3];
+}
+
 void matrix_gpu_set_uniform(const float *m, u32 startreg)
 {
 	float mu[4*4];
@@ -56,21 +63,33 @@ void matrix_mult4x4(const float *src1, const float *src2, float *dst)
 	}
 }
 
-void matrix_rotate_z(float *m, float rad)
+void matrix_set_z_rotation(float *m, float rad)
 {
-	float mr[4*4], mt[4*4];
-	matrix_identity4x4(mr);
-
 	float c = cosf(rad);
 	float s = sinf(rad);
 
-	mr[0] = c;
-	mr[1] = -s;
-	mr[4] = s;
-	mr[5] = c;
+	matrix_identity4x4(m);
 
+	m[0] = c;
+	m[1] = -s;
+	m[4] = s;
+	m[5] = c;
+}
+
+void matrix_rotate_z(float *m, float rad)
+{
+	float mr[4*4], mt[4*4];
+	matrix_set_z_rotation(mr, rad);
 	matrix_mult4x4(mr, m, mt);
 	matrix_copy(m, mt);
+}
+
+void matrix_set_scaling(float *m, float x_scale, float y_scale, float z_scale)
+{
+	matrix_identity4x4(m);
+	m[0] = x_scale;
+	m[5] = y_scale;
+	m[10] = z_scale;
 }
 
 void matrix_swap_xy(float *m)

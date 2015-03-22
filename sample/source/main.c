@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <3ds.h>
 #include <sf2d.h>
@@ -25,16 +26,24 @@ int main()
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0x40));
 
+	consoleInit(GFX_BOTTOM, NULL);
+	printf("sf2dlib sample by xerpi\n");
+
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
 	sf2d_texture *tex = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
 	texture_tile32((u32 *)citra_img.pixel_data, (u32 *)tex->data, citra_img.width, citra_img.height);
 
+	printf("entering main loop...\n");
+
+	float rad = 0.0f;
 
 	while (aptMainLoop()) {
 		sf2d_start_frame();
 		hidScanInput();
+
+		//printf("%f\n", rad);
 
 		draw_triangle();
 		
@@ -45,7 +54,9 @@ int main()
 
 		sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
-		sf2d_draw_texture(tex, 50, 0);
+		sf2d_draw_texture_rotate(tex, 200-tex->width/2, 120-tex->height/2, rad);
+
+		rad += 0.2f;
 
 		if (hidKeysDown() & KEY_START) break;
 
@@ -53,7 +64,7 @@ int main()
 	}
 	
 	linearFree(triangle_data);
-	sf2d_free_texture(tex);
+	//sf2d_free_texture(tex);
 	
 	sf2d_fini();
 	return 0;

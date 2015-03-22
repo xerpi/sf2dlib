@@ -121,6 +121,71 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
+void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad)
+{
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
+
+	int w2 = texture->width/2.0f;
+	int h2 = texture->height/2.0f;
+
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){1.0f, 0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
+	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
+
+	float m[4*4];
+	matrix_set_z_rotation(m, rad);
+	sf2d_vector_3f rot[4];
+
+	int i;
+	for (i = 0; i < 4; i++) {
+		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
+	}
+	for (i = 0; i < 4; i++) {
+		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
+	}
+
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
+
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_TEXTURE0, GPU_TEXTURE0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_MODULATE, GPU_MODULATE,
+		0xFFFFFFFF
+	);
+
+	GPU_SetTexture(
+		GPU_TEXUNIT0,
+		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		texture->width,
+		texture->height,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pixel_format
+	);
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+}
+
 static const u8 tile_order[] = {
 	0,1,8,9,2,3,10,11,16,17,24,25,18,19,26,27,4,5,
 	12,13,6,7,14,15,20,21,28,29,22,23,30,31,32,33,
