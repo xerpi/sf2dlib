@@ -129,7 +129,7 @@ static const u8 tile_order[] = {
 };
 
 //Stolen from smealum's portal3DS
-void texture_tile32(u32 *src, u32 *dst, int width, int height)
+void texture_tile32(const u32 *src, u32 *dst, int width, int height)
 {
 	if (!src || !dst) return;
 

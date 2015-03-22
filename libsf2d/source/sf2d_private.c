@@ -15,7 +15,7 @@ void GPU_SetDummyTexEnv(u8 num)
 		0xFFFFFFFF);
 }
 
-void matrix_gpu_set_uniform(float *m, u32 startreg)
+void matrix_gpu_set_uniform(const float *m, u32 startreg)
 {
 	float mu[4*4];
 
@@ -29,7 +29,7 @@ void matrix_gpu_set_uniform(float *m, u32 startreg)
 	GPU_SetFloatUniform(GPU_VERTEX_SHADER, startreg, (u32 *)mu, 4);
 }
 
-void matrix_copy(float *dst, float *src)
+void matrix_copy(float *dst, const float *src)
 {
 	memcpy(dst, src, sizeof(float)*4*4);
 }
@@ -43,7 +43,7 @@ void matrix_identity4x4(float *m)
 	m[12] = m[13] = m[14] = 0.0f;
 }
 
-void matrix_mult4x4(float *src1, float *src2, float *dst)
+void matrix_mult4x4(const float *src1, const float *src2, float *dst)
 {
 	int i, j, k;
 	for (i = 0; i < 4; i++) {
