@@ -13,9 +13,9 @@ extern const struct {
 
 static const sf2d_vertex_pos_col triangle_mesh[] =
 {
-	{{200.0f,       120.0f-60.0f, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-	{{200.0f-60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-	{{200.0f+60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+	{{120.0f,       120.0f-60.0f, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+	{{120.0f-60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+	{{120.0f+60.0f, 120.0f+60.0f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 };
 
 static void *triangle_data = NULL;
@@ -26,41 +26,45 @@ int main()
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0x40));
 
-	consoleInit(GFX_BOTTOM, NULL);
-	printf("sf2dlib sample by xerpi\n");
-
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
 	sf2d_texture *tex = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
 	texture_tile32((u32 *)citra_img.pixel_data, (u32 *)tex->data, citra_img.width, citra_img.height);
 
-	printf("entering main loop...\n");
-
 	float rad = 0.0f;
 
 	while (aptMainLoop()) {
-		sf2d_start_frame();
+
 		hidScanInput();
+		if (hidKeysDown() & KEY_START) break;
 
-		//printf("%f\n", rad);
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+			draw_triangle();
 
-		draw_triangle();
-		
-		sf2d_draw_rectangle(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
-		sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
-		sf2d_draw_rectangle(400-20, 240-20, 400, 240, RGBA8(0x00, 0x00, 0xFF, 0xFF));
-		sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
+			sf2d_draw_rectangle(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
+			sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 
-		sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
+			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
-		sf2d_draw_texture_rotate(tex, 200-tex->width/2, 120-tex->height/2, rad);
+			sf2d_draw_texture_rotate(tex, 200-tex->width/2, 120-tex->height/2, rad);
+		sf2d_end_frame();
+
+		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+
+			draw_triangle();
+
+			sf2d_draw_rectangle(190, 170, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
+
+			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
+
+			sf2d_draw_texture_rotate(tex, 190, 120-tex->height/2, -rad);
+		sf2d_end_frame();
 
 		rad += 0.2f;
 
-		if (hidKeysDown() & KEY_START) break;
-
-		sf2d_end_frame();
+		sf2d_swapbuffers();
 	}
 	
 	linearFree(triangle_data);

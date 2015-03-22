@@ -56,8 +56,9 @@ typedef struct {
 int sf2d_init();
 int sf2d_fini();
 
-void sf2d_start_frame();
+void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side);
 void sf2d_end_frame();
+void sf2d_swapbuffers();
 
 void *sf2d_pool_malloc(u32 size);
 void *sf2d_pool_memalign(u32 size, u32 alignment);

@@ -15,6 +15,9 @@ static u32 pool_index = 0;
 static u32 *gpu_fb_addr = NULL;
 //GPU depth buffer address
 static u32 *gpu_depth_fb_addr = NULL;
+//Current screen/side
+static gfxScreen_t cur_screen = GFX_TOP;
+static gfx3dSide_t cur_side = GFX_LEFT;
 //Shader stuff
 static DVLB_s *dvlb = NULL;
 static shaderProgram_s shader;
@@ -83,13 +86,33 @@ int sf2d_fini()
 	return 1;
 }
 
-void sf2d_start_frame()
+void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 {
 	sf2d_pool_reset();
 	GPUCMD_SetBufferOffset(0);
+
+	// Only upload the uniform if the screen changes
+	if (screen != cur_screen) {
+		if (screen == GFX_TOP) {
+			matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
+		} else {
+			matrix_gpu_set_uniform(ortho_matrix_bot, projection_desc);
+		}
+	}
+
+	cur_screen = screen;
+	cur_side = side;
+
+	int screen_w;
+	if (screen == GFX_TOP) {
+		screen_w = 400;
+	} else {
+		screen_w = 320;
+	}
 	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
 		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
-		0, 0, 240, 400);
+		0, 0, 240, screen_w);
+
 	GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_NONE);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
@@ -123,15 +146,22 @@ void sf2d_end_frame()
 	gspWaitForP3D();
 
 	//Draw the screen
-	GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019000F0, 0x1000);
+	if (cur_screen == GFX_TOP) {
+		GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, cur_side, NULL, NULL), 0x019000F0, 0x1000);
+	} else {
+		GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x014000F0, (u32*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), 0x014000F0, 0x1000);
+	}
 	gspWaitForPPF();
 
 	//Clear the screen
 	GX_SetMemoryFill(NULL, gpu_fb_addr, clear_color, &gpu_fb_addr[0x2EE00],
 		0x201, gpu_depth_fb_addr, 0x00000000, &gpu_depth_fb_addr[0x2EE00], 0x201);
 	gspWaitForPSC0();
-	gfxSwapBuffersGpu();
+}
 
+void sf2d_swapbuffers()
+{
+	gfxSwapBuffersGpu();
 	gspWaitForEvent(GSPEVENT_VBlank0, true);
 }
 
