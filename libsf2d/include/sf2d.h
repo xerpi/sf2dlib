@@ -3,6 +3,10 @@
 
 #include <3ds.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Defines
 
 #define RGBA8(r, g, b, a) ((((r)&0xFF)<<24) | (((g)&0xFF)<<16) | (((b)&0xFF)<<8) | (((a)&0xFF)<<0))
@@ -72,5 +76,9 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad);
 void texture_tile32(const u32 *src, u32 *dst, int width, int height);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

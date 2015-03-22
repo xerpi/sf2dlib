@@ -21,7 +21,8 @@ static shaderProgram_s shader;
 static u32 projection_desc = -1;
 static u32 modelview_desc = -1;
 //Matrix
-static float ortho_matrix[4*4];
+static float ortho_matrix_top[4*4];
+static float ortho_matrix_bot[4*4];
 
 
 int sf2d_init()
@@ -49,8 +50,9 @@ int sf2d_init()
 	
 	shaderProgramUse(&shader);
 	
-	matrix_init_orthographic(ortho_matrix, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
-	matrix_gpu_set_uniform(ortho_matrix, projection_desc);
+	matrix_init_orthographic(ortho_matrix_top, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
+	matrix_init_orthographic(ortho_matrix_bot, 0.0f, 320.0f, 0.0f, 240.0f, 0.0f, 1.0f);
+	matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
 
 	GPUCMD_Finalize();
 	GPUCMD_FlushAndRun(NULL);
