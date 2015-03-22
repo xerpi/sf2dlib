@@ -89,7 +89,7 @@ void sf2d_start_frame()
 	GPUCMD_SetBufferOffset(0);
 	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
 		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
-		0, 0, 240*2, 400);
+		0, 0, 240, 400);
 	GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_NONE);
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
@@ -123,7 +123,7 @@ void sf2d_end_frame()
 	gspWaitForP3D();
 
 	//Draw the screen
-	GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019001E0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019001E0, 0x01001000);
+	GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 0x019000F0, 0x1000);
 	gspWaitForPPF();
 
 	//Clear the screen
