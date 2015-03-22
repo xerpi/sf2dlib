@@ -70,7 +70,7 @@ void sf2d_free_texture(sf2d_texture *texture)
 
 void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 {
-	GPU_SetTextureEnable(GPU_TEXUNIT0);
+	GPU_SetTextureEnable(unit);
 
 	GPU_SetTexEnv(
 		0,
