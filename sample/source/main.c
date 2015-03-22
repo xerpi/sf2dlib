@@ -64,7 +64,7 @@ int main()
 	}
 	
 	linearFree(triangle_data);
-	//sf2d_free_texture(tex);
+	sf2d_free_texture(tex);
 	
 	sf2d_fini();
 	return 0;
