@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "sf2d.h"
 #include "sf2d_private.h"
 
@@ -68,6 +69,21 @@ void sf2d_free_texture(sf2d_texture *texture)
 	}
 }
 
+void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h)
+{
+	// TODO: add support for non-RGBA8 textures
+
+	u8 *tmp = linearAlloc(dst->pow2_w * dst->pow2_h * 4);
+	int i, j;
+	for (i = 0; i < source_h; i++) {
+		for (j = 0; j < source_w; j++) {
+			((u32 *)tmp)[i*dst->pow2_w + j] = ((u32 *)rgba8)[i*source_w + j];
+		}
+	}
+	memcpy(dst->data, tmp, dst->pow2_w*dst->pow2_h*4);
+	linearFree(tmp);
+}
+
 void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 {
 	GPU_SetTextureEnable(unit);
@@ -85,8 +101,9 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 	GPU_SetTexture(
 		unit,
 		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		texture->width,
-		texture->height,
+		// width and height swapped?
+		texture->pow2_h,
+		texture->pow2_w,
 		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
 		texture->pixel_format
 	);
@@ -104,10 +121,13 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
 	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
 
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
+
 	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){1.0f, 0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
-	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
 	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
@@ -138,10 +158,13 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
 	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
 	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
 
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
+
 	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){1.0f, 0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, 1.0f};
-	vertices[3].texcoord = (sf2d_vector_2f){1.0f, 1.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
 	float m[4*4];
 	matrix_set_z_rotation(m, rad);
@@ -180,19 +203,23 @@ static const u8 tile_order[] = {
 };
 
 //Stolen from smealum's portal3DS
-void texture_tile32(const u32 *src, u32 *dst, int width, int height)
+void sf2d_texture_tile32(sf2d_texture *texture)
 {
-	if (!src || !dst) return;
+	// TODO: add support for non-RGBA8 textures
+
+	u8 *tmp = linearAlloc(texture->pow2_w * texture->pow2_h * 4);
 
 	int i, j, k, l = 0;
-	for (j = 0; j < height; j+=8) {
-		for (i = 0; i < width; i+=8) {
+	for (j = 0; j < texture->pow2_h; j+=8) {
+		for (i = 0; i < texture->pow2_w; i+=8) {
 			for (k = 0; k < 8*8; k++) {
 				int x = i + tile_order[k]%8;
 				int y = j + (tile_order[k] - (x-i))/8;
-				u32 v = src[x + (height-1-y)*width];
-				dst[l++] = __builtin_bswap32(v);
+				u32 v = ((u32 *)texture->data)[x + (texture->pow2_h-1-y)*texture->pow2_w];
+				((u32 *)tmp)[l++] = __builtin_bswap32(v);
 			}
 		}
 	}
+	memcpy(texture->data, tmp, texture->pow2_w*texture->pow2_h*4);
+	linearFree(tmp);
 }

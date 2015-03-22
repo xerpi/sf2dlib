@@ -10,6 +10,12 @@ extern const struct {
   unsigned char	 pixel_data[];
 } citra_img;
 
+extern const struct {
+  unsigned int 	 width;
+  unsigned int 	 height;
+  unsigned int 	 bytes_per_pixel;
+  unsigned char	 pixel_data[];
+} chmm_img;
 
 static const sf2d_vertex_pos_col triangle_mesh[] =
 {
@@ -29,8 +35,13 @@ int main()
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
-	sf2d_texture *tex = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
-	texture_tile32((u32 *)citra_img.pixel_data, (u32 *)tex->data, citra_img.width, citra_img.height);
+	sf2d_texture *tex1 = sf2d_create_texture(chmm_img.width, chmm_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	sf2d_fill_texture_from_RGBA8(tex1, chmm_img.pixel_data, chmm_img.width, chmm_img.height);
+	sf2d_texture_tile32(tex1);
+
+	sf2d_texture *tex2 = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	sf2d_fill_texture_from_RGBA8(tex2, citra_img.pixel_data, citra_img.width, citra_img.height);
+	sf2d_texture_tile32(tex2);
 
 	float rad = 0.0f;
 
@@ -44,22 +55,20 @@ int main()
 
 			sf2d_draw_rectangle(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
 			sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
-
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
-			sf2d_draw_texture_rotate(tex, 200-tex->width/2, 120-tex->height/2, rad);
+			sf2d_draw_texture_rotate(tex1, 200-tex1->width/2, 120-tex1->height/2, rad);
 		sf2d_end_frame();
 
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-
 			draw_triangle();
 
 			sf2d_draw_rectangle(190, 170, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
-
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
-			sf2d_draw_texture_rotate(tex, 190, 120-tex->height/2, -rad);
+			sf2d_draw_texture_rotate(tex2, 190, 120-tex2->height/2, -rad);
+
 		sf2d_end_frame();
 
 		rad += 0.2f;
@@ -68,7 +77,8 @@ int main()
 	}
 	
 	linearFree(triangle_data);
-	sf2d_free_texture(tex);
+	sf2d_free_texture(tex1);
+	sf2d_free_texture(tex2);
 	
 	sf2d_fini();
 	return 0;
