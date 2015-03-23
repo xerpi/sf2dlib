@@ -178,7 +178,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
  * @param w rectangle width
  * @param w rectangle height
  * @param color the color to draw the rectangle
- * @param rad rotation (in radians) to draw the texture
+ * @param rad rotation (in radians) to draw the rectangle
  */
 void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad);
 
