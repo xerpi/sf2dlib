@@ -15,7 +15,7 @@ extern const struct {
   unsigned int 	 height;
   unsigned int 	 bytes_per_pixel;
   unsigned char	 pixel_data[];
-} chmm_img;
+} dice_img;
 
 static const sf2d_vertex_pos_col triangle_mesh[] =
 {
@@ -35,8 +35,8 @@ int main()
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
-	sf2d_texture *tex1 = sf2d_create_texture(chmm_img.width, chmm_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
-	sf2d_fill_texture_from_RGBA8(tex1, chmm_img.pixel_data, chmm_img.width, chmm_img.height);
+	sf2d_texture *tex1 = sf2d_create_texture(dice_img.width, dice_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	sf2d_fill_texture_from_RGBA8(tex1, dice_img.pixel_data, dice_img.width, dice_img.height);
 	sf2d_texture_tile32(tex1);
 
 	sf2d_texture *tex2 = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
@@ -53,8 +53,8 @@ int main()
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 			draw_triangle();
 
-			sf2d_draw_rectangle(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
-			sf2d_draw_rectangle(20, 20, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
+			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
+			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
 			sf2d_draw_texture_rotate(tex1, 200-tex1->width/2, 120-tex1->height/2, rad);
@@ -63,7 +63,7 @@ int main()
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 			draw_triangle();
 
-			sf2d_draw_rectangle(190, 170, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+			sf2d_draw_rectangle_rotate(190, 160, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 3.0f*rad);
 			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 

@@ -16,6 +16,13 @@ extern "C" {
 
 // Defines
 
+/**
+ * @brief Creates a new RGBA8 color
+ * @param r the red component of the color to create
+ * @param g the green component of the color to create
+ * @param b the blue component of the color to create
+ * @param a the alpha component of the color to create
+ */
 #define RGBA8(r, g, b, a) ((((r)&0xFF)<<24) | (((g)&0xFF)<<16) | (((b)&0xFF)<<8) | (((a)&0xFF)<<0))
 
 // Enums
@@ -164,9 +171,24 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color);
  */
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
 
+/**
+ * @brief Draws a rotated rectangle
+ * @param x x coordinate of the top left corner of the rectangle
+ * @param y y coordinate of the top left corner of the rectangle
+ * @param w rectangle width
+ * @param w rectangle height
+ * @param color the color to draw the rectangle
+ * @param rad rotation (in radians) to draw the texture
+ */
+void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad);
+
 // Texture
+
 /**
  * @brief Creates an empty texture
+ * The returned texture has the data allocated,
+ * this means that the raw pixel data can be filled
+ * just after the return.
  * @param width the width of the texture
  * @param height the height of the texture
  * @param pixel_format the pixel_format of the texture
@@ -219,7 +241,6 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
  * @param texture the texture to tile
  * @param x the x coordinate to draw the texture to
  * @param y the y coordinate to draw the texture to
- * @param rad rotation (in radians) to draw the texture
  */
 void sf2d_texture_tile32(sf2d_texture *texture);
 

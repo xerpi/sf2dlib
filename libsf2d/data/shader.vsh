@@ -8,7 +8,6 @@
 
 ; setup uniform map (not required)
 	.uniform c0, c3, projection
-	.uniform c4, c7, modelview
 
 	.vsh vmain, end_vmain
 
