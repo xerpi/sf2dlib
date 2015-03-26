@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <3ds.h>
 #include <sf2d.h>
 
@@ -35,11 +36,11 @@ int main()
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dice_img.width, dice_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	sf2d_texture *tex1 = sf2d_create_texture(dice_img.width, dice_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex1, dice_img.pixel_data, dice_img.width, dice_img.height);
 	sf2d_texture_tile32(tex1);
 
-	sf2d_texture *tex2 = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_VRAM);
+	sf2d_texture *tex2 = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex2, citra_img.pixel_data, citra_img.width, citra_img.height);
 	sf2d_texture_tile32(tex2);
 
@@ -51,23 +52,22 @@ int main()
 		if (hidKeysDown() & KEY_START) break;
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
-			draw_triangle();
 
+			draw_triangle();
 			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-
 			sf2d_draw_texture_rotate(tex1, 200-tex1->width/2, 120-tex1->height/2, rad);
+
 		sf2d_end_frame();
 
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-			draw_triangle();
 
+			draw_triangle();
 			sf2d_draw_rectangle_rotate(190, 160, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 3.0f*rad);
 			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
-			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-
 			sf2d_draw_texture_rotate(tex2, 190, 120-tex2->height/2, -rad);
+			sf2d_draw_rectangle(160-15 + cosf(rad)*50.0f, 120-15 + sinf(rad)*50.0f, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 
 		sf2d_end_frame();
 

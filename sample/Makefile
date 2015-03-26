@@ -132,7 +132,7 @@ clean:
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
 #---------------------------------------------------------------------------------
 send: $(BUILD)
-	@nc 192.168.1.45 9000 < $(TARGET).3dsx
+	@3dslink $(TARGET).3dsx
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@~/Desktop/citra/build/src/citra/citra $(TARGET).3dsx

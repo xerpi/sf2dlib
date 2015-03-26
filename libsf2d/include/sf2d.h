@@ -127,6 +127,17 @@ void sf2d_end_frame();
 void sf2d_swapbuffers();
 
 /**
+ * @brief Enables or disables the VBlank waiting
+ * @param enable whether to enable or disable the VBlank waiting
+ */
+void sf2d_set_vblank_wait(int enable);
+
+/**
+ * @brief Returns the FPS (frames per second)
+ */
+float sf2d_get_fps();
+
+/**
  * @brief Allocates memory from a temporary pool. The pool will be emptied after a sf2d_swapbuffers call
  * @param size the number of bytes to allocate
  */
@@ -185,7 +196,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 // Texture
 
 /**
- * @brief Creates an empty texture
+ * @brief Creates an empty texture.
  * The returned texture has the data allocated,
  * this means that the raw pixel data can be filled
  * just after the return.

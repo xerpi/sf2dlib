@@ -15,6 +15,12 @@ static u32 pool_index = 0;
 static u32 *gpu_fb_addr = NULL;
 //GPU depth buffer address
 static u32 *gpu_depth_fb_addr = NULL;
+//VBlank wait
+static int vblank_wait = 1;
+//FPS calculation
+static float current_fps = 0.0f;
+static unsigned int frames = 0;
+static u64 last_time = 0;
 //Current screen/side
 static gfxScreen_t cur_screen = GFX_TOP;
 static gfx3dSide_t cur_side = GFX_LEFT;
@@ -54,6 +60,11 @@ int sf2d_init()
 	matrix_init_orthographic(ortho_matrix_top, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_init_orthographic(ortho_matrix_bot, 0.0f, 320.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
+
+	vblank_wait = 1;
+	current_fps = 0.0f;
+	frames = 0;
+	last_time = osGetTime();
 
 	cur_screen = GFX_TOP;
 	cur_side = GFX_LEFT;
@@ -163,7 +174,27 @@ void sf2d_end_frame()
 void sf2d_swapbuffers()
 {
 	gfxSwapBuffersGpu();
-	gspWaitForEvent(GSPEVENT_VBlank0, true);
+	if (vblank_wait) {
+		gspWaitForEvent(GSPEVENT_VBlank0, true);
+	}
+	//Calculate FPS
+	frames++;
+	u64 delta_time = osGetTime() - last_time;
+	if (delta_time >= 1000) {
+		current_fps = frames/(delta_time/1000.0f);
+		frames = 0;
+		last_time = osGetTime();
+	}
+}
+
+void sf2d_set_vblank_wait(int enable)
+{
+	vblank_wait = enable;
+}
+
+float sf2d_get_fps()
+{
+	return current_fps;
 }
 
 void *sf2d_pool_malloc(u32 size)
