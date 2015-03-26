@@ -248,6 +248,18 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad);
 
 /**
+ * @brief Draws a part of a texture
+ * @param texture the texture to draw
+ * @param x the x coordinate to draw the texture to
+ * @param y the y coordinate to draw the texture to
+ * @param tex_x the starting point (x coordinate) where to start drawing
+ * @param tex_y the starting point (y coordinate) where to start drawing
+ * @param tex_w the width to draw from the starting point
+ * @param tex_h the height to draw from the starting point
+ */
+void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h);
+
+/**
  * @brief Tiles a texture
  * @param texture the texture to tile
  * @param x the x coordinate to draw the texture to
