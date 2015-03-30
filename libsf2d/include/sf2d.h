@@ -134,6 +134,7 @@ void sf2d_set_vblank_wait(int enable);
 
 /**
  * @brief Returns the FPS (frames per second)
+ * @return the current FPS
  */
 float sf2d_get_fps();
 
@@ -258,6 +259,16 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
  * @param tex_h the height to draw from the starting point
  */
 void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h);
+
+/**
+ * @brief Draws a texture with scaling
+ * @param texture the texture to draw
+ * @param x the x coordinate to draw the texture to
+ * @param y the y coordinate to draw the texture to
+ * @param x_scale the x scale
+ * @param y_scale the y scale
+ */
+void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_scale, float y_scale);
 
 /**
  * @brief Tiles a texture
