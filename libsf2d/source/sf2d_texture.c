@@ -173,8 +173,6 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
 	int i;
 	for (i = 0; i < 4; i++) {
 		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-	}
-	for (i = 0; i < 4; i++) {
 		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
 

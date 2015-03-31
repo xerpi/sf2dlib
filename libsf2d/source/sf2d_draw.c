@@ -118,8 +118,6 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	int i;
 	for (i = 0; i < 4; i++) {
 		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-	}
-	for (i = 0; i < 4; i++) {
 		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
 
