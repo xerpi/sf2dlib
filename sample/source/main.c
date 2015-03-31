@@ -31,7 +31,7 @@ static void draw_triangle();
 int main()
 {
 	sf2d_init();
-	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0x40));
+	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
