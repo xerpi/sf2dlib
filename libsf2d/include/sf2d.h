@@ -286,6 +286,15 @@ void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_
 void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale);
 
 /**
+ * @brief Draws a texture blended with a color
+ * @param texture the texture to draw
+ * @param x the x coordinate to draw the texture to
+ * @param y the y coordinate to draw the texture to
+ * @param color the color to blend with the texture
+ */
+void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 color);
+
+/**
  * @brief Tiles a texture
  * @param texture the texture to tile
  * @param x the x coordinate to draw the texture to
