@@ -273,8 +273,8 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
 	//Don't even try to understand what I'm doing here (because I don't even understand it).
 	//Matrices are boring.
 
-	int w2 = (texture->width * x_scale)/2.0f;
-	int h2 = (texture->height * y_scale)/2.0f;
+	int w2 = (tex_w * x_scale)/2.0f;
+	int h2 = (tex_h * y_scale)/2.0f;
 
 	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
 	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
@@ -298,12 +298,8 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
 	int i;
 	for (i = 0; i < 4; i++) {
 		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
+		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
-
-	vertices[0].position = (sf2d_vector_3f){rot[0].x + x + w2,           rot[0].y + y + h2,           rot[0].z};
-	vertices[1].position = (sf2d_vector_3f){rot[1].x + x * x_scale + w2, rot[1].y + y + h2,           rot[1].z};
-	vertices[2].position = (sf2d_vector_3f){rot[2].x + x + w2,           rot[2].y + y * y_scale + h2, rot[2].z};
-	vertices[3].position = (sf2d_vector_3f){rot[3].x + x * x_scale + w2, rot[3].y + y * y_scale + h2, rot[3].z};
 
 	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
