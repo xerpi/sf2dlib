@@ -110,6 +110,12 @@ int sf2d_init();
 int sf2d_fini();
 
 /**
+ * @brief Enables or disables the 3D
+ * @param enable whether to enable or disable the 3D
+ */
+void sf2d_set_3D(int enable);
+
+/**
  * @brief Starts a frame
  * @param screen target screen
  * @param side target eye (ony for top screen)

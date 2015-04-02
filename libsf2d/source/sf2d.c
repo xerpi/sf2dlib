@@ -44,7 +44,7 @@ int sf2d_init()
 	
 	gfxInitDefault();
 	GPU_Init(NULL);
-	gfxSet3D(true);
+	gfxSet3D(false);
 	GPU_Reset(NULL, gpu_cmd, GPU_CMD_SIZE);
 	
 	//Setup the shader
@@ -96,6 +96,11 @@ int sf2d_fini()
 	sf2d_initialized = 0;
 	
 	return 1;
+}
+
+void sf2d_set_3D(int enable)
+{
+	gfxSet3D(enable);
 }
 
 void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
