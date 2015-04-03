@@ -41,6 +41,9 @@ sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_form
 		texture = malloc(sizeof(*texture));
 		texture->data = vramMemAlign(data_size, 0x80);
 
+	} else if (place == SF2D_PLACE_TEMP) {
+		texture = malloc(sizeof(*texture));
+		texture->data = sf2d_pool_memalign(data_size, 0x80);
 	} else {
 		//wot?
 		return NULL;

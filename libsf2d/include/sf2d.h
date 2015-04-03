@@ -32,8 +32,9 @@ extern "C" {
  */
 
 typedef enum {
-	SF2D_PLACE_RAM, /**< RAM allocated */
-	SF2D_PLACE_VRAM /**< VRAM allocated */
+	SF2D_PLACE_RAM,  /**< RAM allocated */
+	SF2D_PLACE_VRAM, /**< VRAM allocated */
+	SF2D_PLACE_TEMP  /**< Temporary memory pool allocated */
 } sf2d_place;
 
 // Structs
