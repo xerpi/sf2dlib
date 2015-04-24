@@ -36,13 +36,8 @@ int main()
 	triangle_data = linearAlloc(sizeof(triangle_mesh));
 	memcpy(triangle_data, triangle_mesh, sizeof(triangle_mesh));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dice_img.width, dice_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex1, dice_img.pixel_data, dice_img.width, dice_img.height);
-	sf2d_texture_tile32(tex1);
-
-	sf2d_texture *tex2 = sf2d_create_texture(citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex2, citra_img.pixel_data, citra_img.width, citra_img.height);
-	sf2d_texture_tile32(tex2);
+	sf2d_texture *tex1 = sf2d_create_texture_mem_RGBA8(dice_img.pixel_data, dice_img.width, dice_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
+	sf2d_texture *tex2 = sf2d_create_texture_mem_RGBA8(citra_img.pixel_data, citra_img.width, citra_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
 
 	float rad = 0.0f;
 

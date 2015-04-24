@@ -28,7 +28,7 @@ extern "C" {
 // Enums
 
 /**
- * @brief Data allocated on the RAM or VRAM
+ * @brief Data allocation place
  */
 
 typedef enum {
@@ -87,6 +87,7 @@ typedef struct {
 
 typedef struct {
 	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
+	int tiled;                 /**< Whether the tetxure is tiled or not */
 	GPU_TEXCOLOR pixel_format; /**< Pixel format */
 	int width;                 /**< Texture width */
 	int height;                /**< Texture height */
@@ -159,6 +160,12 @@ void *sf2d_pool_malloc(u32 size);
 void *sf2d_pool_memalign(u32 size, u32 alignment);
 
 /**
+ * @brief Returns the temporary pool's free space
+ * @return the temporary pool's free space
+ */
+unsigned int sf2d_pool_space_free();
+
+/**
  * @brief Empties the temporary pool
  */
 void sf2d_pool_reset();
@@ -214,7 +221,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
  * @param place where to allocate the texture
  * @return a pointer to the newly created texture
  */
-sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
+sf2d_texture *sf2d_create_texture_empty(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
 
 /**
  * @brief Frees a texture
@@ -224,12 +231,26 @@ void sf2d_free_texture(sf2d_texture *texture);
 
 /**
  * @brief Fills an already allocated texture from a RGBA8 source
+ * This function also tiles the texture.
  * @param dst pointer to the destination texture to fill
  * @param rgba8 pointer to the RGBA8 data to fill from
  * @param source_w width (in pixels) of the RGAB8 source
  * @param source_h height (in pixels) of the RGAB8 source
  */
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h);
+
+/**
+ * @brief Creates a texture and fills it from a RGBA8 memory source.
+ * The returned texture is already tiled.
+ * @param src_buffer pointer to the RGBA8 data to fill from
+ * @param src_w width (in pixels) of the RGAB8 source
+ * @param src_h height (in pixels) of the RGAB8 source
+ * @param pixel_format the pixel_format of the texture to create
+ * @param place where to allocate the texture
+ * @return a pointer to the newly created, filled, and tiled texture
+ */
+
+sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, GPU_TEXCOLOR pixel_format, sf2d_place place);
 
 /**
  * @brief Binds a texture to a GPU texture unit
@@ -243,6 +264,7 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
  * @param texture the texture to draw
  * @param x the x coordinate to draw the texture to
  * @param y the y coordinate to draw the texture to
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
 
@@ -252,6 +274,7 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y);
  * @param x the x coordinate to draw the texture to
  * @param y the y coordinate to draw the texture to
  * @param rad rotation (in radians) to draw the texture
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad);
 
@@ -264,6 +287,7 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
  * @param tex_y the starting point (y coordinate) where to start drawing
  * @param tex_w the width to draw from the starting point
  * @param tex_h the height to draw from the starting point
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h);
 
@@ -274,6 +298,7 @@ void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x
  * @param y the y coordinate to draw the texture to
  * @param x_scale the x scale
  * @param y_scale the y scale
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_scale, float y_scale);
 
@@ -289,6 +314,7 @@ void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_
  * @param tex_h the height to draw from the starting point
  * @param x_scale the x scale
  * @param y_scale the y scale
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale);
 
@@ -298,6 +324,7 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
  * @param x the x coordinate to draw the texture to
  * @param y the y coordinate to draw the texture to
  * @param color the color to blend with the texture
+ * @pre the texture must be tiled
  */
 void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 color);
 

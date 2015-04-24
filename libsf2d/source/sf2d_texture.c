@@ -3,52 +3,57 @@
 #include "sf2d.h"
 #include "sf2d_private.h"
 
-sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place)
-{
-	int pow2_w = next_pow2(width);
-	int pow2_h = next_pow2(height);
-	int data_size;
+#define TEX_MIN_SIZE 8
 
+static int calc_buffer_size(GPU_TEXCOLOR pixel_format, int width, int height)
+{
 	switch (pixel_format) {
 	case GPU_RGBA8:
 	default:
-		data_size = pow2_w * pow2_h * 4;
-		break;
+		return width * height * 4;
 	case GPU_RGB8:
-		data_size = pow2_w * pow2_h * 3;
-		break;
+		return width * height * 3;
 	case GPU_RGBA5551:
 	case GPU_RGB565:
-		data_size = pow2_w * pow2_h * 2;
-		break;
+		return width * height * 2;
 	}
+}
 
-	sf2d_texture *texture;
+sf2d_texture *sf2d_create_texture_empty(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place)
+{
+	if (width < TEX_MIN_SIZE) width = TEX_MIN_SIZE;
+	if (height < TEX_MIN_SIZE) height = TEX_MIN_SIZE;
+
+	int pow2_w = next_pow2(width);
+	int pow2_h = next_pow2(height);
+	int data_size = calc_buffer_size(pixel_format, pow2_w, pow2_h);
+	void *data;
 
 	if (place == SF2D_PLACE_RAM) {
 		// If there's not enough linear heap space, return
 		if (linearSpaceFree() < data_size) {
 			return NULL;
 		}
-		texture = malloc(sizeof(*texture));
-		texture->data = linearMemAlign(data_size, 0x80);
-
+		data = linearMemAlign(data_size, 0x80);
 	} else if (place == SF2D_PLACE_VRAM) {
 		// If there's not enough VRAM heap space, return
 		if (vramSpaceFree() < data_size) {
 			return NULL;
 		}
-		texture = malloc(sizeof(*texture));
-		texture->data = vramMemAlign(data_size, 0x80);
-
+		data = vramMemAlign(data_size, 0x80);
 	} else if (place == SF2D_PLACE_TEMP) {
-		texture = malloc(sizeof(*texture));
-		texture->data = sf2d_pool_memalign(data_size, 0x80);
+		if (sf2d_pool_space_free() < data_size) {
+			return NULL;
+		}
+		data = sf2d_pool_memalign(data_size, 0x80);
 	} else {
 		//wot?
 		return NULL;
 	}
 
+	sf2d_texture *texture = malloc(sizeof(*texture));
+
+	texture->tiled = 0;
 	texture->place = place;
 	texture->pixel_format = pixel_format;
 	texture->width = width;
@@ -56,6 +61,9 @@ sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_form
 	texture->pow2_w = pow2_w;
 	texture->pow2_h = pow2_h;
 	texture->data_size = data_size;
+	texture->data = data;
+
+	memset(texture->data, 0, texture->data_size);
 
 	return texture;
 }
@@ -72,9 +80,55 @@ void sf2d_free_texture(sf2d_texture *texture)
 	}
 }
 
+/*static GX_TRANSFER_FORMAT tex_fmt_to_transfer_fmt(GPU_TEXCOLOR pixel_format)
+{
+	switch (pixel_format) {
+	case GPU_RGBA8:
+		return GX_TRANSFER_FMT_RGBA8;
+	case GPU_RGB8:
+		return GX_TRANSFER_FMT_RGB8;
+	case GPU_RGB565:
+		return GX_TRANSFER_FMT_RGB565;
+	case GPU_RGBA5551:
+		return GX_TRANSFER_FMT_RGB5A1;
+	case GPU_RGBA4:
+		return GX_TRANSFER_FMT_RGBA4;
+	default:
+		return -1;
+	}
+}*/
+
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h)
 {
-	// TODO: add support for non-RGBA8 textures
+	/* GPU approach
+	unsigned int i, in_length = source_w * source_h;
+	u32 *tmp = linearAlloc(in_length);
+
+	for (i = 0; i < in_length; i++) {
+		tmp[i] = __builtin_bswap32(((u32 *)rgba8)[i]);
+	}
+
+	GSPGPU_FlushDataCache(NULL, (void *)tmp, in_length * 4);
+
+	GX_SetDisplayTransfer(
+		NULL,
+		tmp,
+		GX_BUFFER_DIM(source_w, source_h),
+		dst->data,
+		GX_BUFFER_DIM(dst->pow2_w, dst->pow2_h),
+		GX_TRANSFER_FLIP_VERT(1) | GX_TRANSFER_OUT_TILED(1) |
+		GX_TRANSFER_RAW_COPY(0)  |
+		GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) |
+		GX_TRANSFER_OUT_FORMAT(tex_fmt_to_transfer_fmt(dst->pixel_format)) |
+		GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO)
+	);
+
+	//Wait until the transfer finishes
+	gspWaitForPPF();
+	linearFree(tmp);
+	dst->tiled = 1;*/
+
+	//CPU approach
 
 	u8 *tmp = linearAlloc(dst->pow2_w * dst->pow2_h * 4);
 	int i, j;
@@ -85,6 +139,16 @@ void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int sour
 	}
 	memcpy(dst->data, tmp, dst->pow2_w*dst->pow2_h*4);
 	linearFree(tmp);
+
+	sf2d_texture_tile32(dst);
+}
+
+sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, GPU_TEXCOLOR pixel_format, sf2d_place place)
+{
+	sf2d_texture *tex = sf2d_create_texture_empty(src_w, src_h, pixel_format, place);
+	if (tex == NULL) return NULL;
+	sf2d_fill_texture_from_RGBA8(tex, src_buffer, src_w, src_h);
+	return tex;
 }
 
 void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
@@ -104,10 +168,10 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 	GPU_SetTexture(
 		unit,
 		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		// width and height swapped?
-		texture->pow2_h,
 		texture->pow2_w,
-		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pow2_h,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST)   | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST) |
+		GPU_TEXTURE_WRAP_S(GPU_CLAMP_TO_EDGE) | GPU_TEXTURE_WRAP_T(GPU_CLAMP_TO_EDGE),
 		texture->pixel_format
 	);
 }
@@ -356,10 +420,10 @@ void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 colo
 	GPU_SetTexture(
 		GPU_TEXUNIT0,
 		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		// width and height swapped?
-		texture->pow2_h,
 		texture->pow2_w,
-		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pow2_h,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST)   | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST) |
+		GPU_TEXTURE_WRAP_S(GPU_CLAMP_TO_EDGE) | GPU_TEXTURE_WRAP_T(GPU_CLAMP_TO_EDGE),
 		texture->pixel_format
 	);
 
@@ -390,6 +454,8 @@ void sf2d_texture_tile32(sf2d_texture *texture)
 {
 	// TODO: add support for non-RGBA8 textures
 
+	if (texture->tiled) return;
+
 	u8 *tmp = linearAlloc(texture->pow2_w * texture->pow2_h * 4);
 
 	int i, j, k, l = 0;
@@ -405,4 +471,6 @@ void sf2d_texture_tile32(sf2d_texture *texture)
 	}
 	memcpy(texture->data, tmp, texture->pow2_w*texture->pow2_h*4);
 	linearFree(tmp);
+
+	texture->tiled = 1;
 }

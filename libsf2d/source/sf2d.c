@@ -223,6 +223,11 @@ void *sf2d_pool_memalign(u32 size, u32 alignment)
 	return NULL;
 }
 
+unsigned int sf2d_pool_space_free()
+{
+	return POOL_SIZE - pool_index;
+}
+
 void sf2d_pool_reset()
 {
 	pool_index = 0;
