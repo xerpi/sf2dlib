@@ -58,7 +58,7 @@ LIBS	:= -lsf2d -lctru -lm
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CTRULIB)
+LIBDIRS	:= $(CTRULIB) $(CURDIR)/../libsf2d
 
 
 #---------------------------------------------------------------------------------
