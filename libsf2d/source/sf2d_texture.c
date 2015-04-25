@@ -115,279 +115,267 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		int w = texture->width;
-		int h = texture->height;
+	if(!vertices)return;
+	int w = texture->width;
+	int h = texture->height;
 
-		vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
 
-		float u = texture->width/(float)texture->pow2_w;
-		float v = texture->height/(float)texture->pow2_h;
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-		vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-		vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-		vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
-		sf2d_bind_texture(texture, GPU_TEXUNIT0);
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
-	}
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		int w2 = texture->width/2.0f;
-		int h2 = texture->height/2.0f;
+	if(!vertices)return;
+	int w2 = texture->width/2.0f;
+	int h2 = texture->height/2.0f;
 
-		vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
 
-		float u = texture->width/(float)texture->pow2_w;
-		float v = texture->height/(float)texture->pow2_h;
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-		vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-		vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-		vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
-		float m[4*4];
-		matrix_set_z_rotation(m, rad);
-		sf2d_vector_3f rot[4];
+	float m[4*4];
+	matrix_set_z_rotation(m, rad);
+	sf2d_vector_3f rot[4];
 
-		int i;
-		for (i = 0; i < 4; i++) {
-			vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-			vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
-		}
-
-		sf2d_bind_texture(texture, GPU_TEXUNIT0);
-
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
-
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+	int i;
+	for (i = 0; i < 4; i++) {
+		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
+		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
+
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, 0.5f};
+	if(!vertices)return;
+	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, 0.5f};
 
-		float u0 = tex_x/(float)texture->pow2_w;
-		float v0 = tex_y/(float)texture->pow2_h;
-		float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
-		float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
+	float u0 = tex_x/(float)texture->pow2_w;
+	float v0 = tex_y/(float)texture->pow2_h;
+	float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
+	float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-		vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-		vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-		vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
 
-		sf2d_bind_texture(texture, GPU_TEXUNIT0);
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
-	}
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_scale, float y_scale)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		int ws = texture->width * x_scale;
-		int hs = texture->height * y_scale;
+	if(!vertices)return;
+	int ws = texture->width * x_scale;
+	int hs = texture->height * y_scale;
 
-		vertices[0].position = (sf2d_vector_3f){(float)x,    (float)y,    0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float)x+ws, (float)y,    0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)x,    (float)y+hs, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float)x+ws, (float)y+hs, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,    (float)y,    0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float)x+ws, (float)y,    0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)x,    (float)y+hs, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float)x+ws, (float)y+hs, 0.5f};
 
-		float u = texture->width/(float)texture->pow2_w;
-		float v = texture->height/(float)texture->pow2_h;
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-		vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-		vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-		vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
-		sf2d_bind_texture(texture, GPU_TEXUNIT0);
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
-	}
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		//Don't even try to understand what I'm doing here (because I don't even understand it).
-		//Matrices are boring.
+	if(!vertices)return;
+	//Don't even try to understand what I'm doing here (because I don't even understand it).
+	//Matrices are boring.
 
-		int w2 = (tex_w * x_scale)/2.0f;
-		int h2 = (tex_h * y_scale)/2.0f;
+	int w2 = (tex_w * x_scale)/2.0f;
+	int h2 = (tex_h * y_scale)/2.0f;
 
-		vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
 
-		float u0 = tex_x/(float)texture->pow2_w;
-		float v0 = tex_y/(float)texture->pow2_h;
-		float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
-		float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
+	float u0 = tex_x/(float)texture->pow2_w;
+	float v0 = tex_y/(float)texture->pow2_h;
+	float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
+	float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-		vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-		vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-		vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
 
-		float m[4*4];
-		matrix_set_z_rotation(m, rad);
-		sf2d_vector_3f rot[4];
+	float m[4*4];
+	matrix_set_z_rotation(m, rad);
+	sf2d_vector_3f rot[4];
 
-		int i;
-		for (i = 0; i < 4; i++) {
-			vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-			vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
-		}
-
-		sf2d_bind_texture(texture, GPU_TEXUNIT0);
-
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
-
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+	int i;
+	for (i = 0; i < 4; i++) {
+		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
+		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
 	}
+
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 color)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-	if(vertices)
-	{
-		int w = texture->width;
-		int h = texture->height;
+	if(!vertices)return;
+	int w = texture->width;
+	int h = texture->height;
 
-		vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
-		vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
-		vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
-		vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
 
-		float u = texture->width/(float)texture->pow2_w;
-		float v = texture->height/(float)texture->pow2_h;
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
 
-		vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-		vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-		vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-		vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
 
-		GPU_SetTextureEnable(GPU_TEXUNIT0);
+	GPU_SetTextureEnable(GPU_TEXUNIT0);
 
-		GPU_SetTexEnv(
-			0,
-			GPU_TEVSOURCES(GPU_TEXTURE0, GPU_CONSTANT, GPU_CONSTANT),
-			GPU_TEVSOURCES(GPU_TEXTURE0, GPU_CONSTANT, GPU_CONSTANT),
-			GPU_TEVOPERANDS(0, 0, 0),
-			GPU_TEVOPERANDS(0, 0, 0),
-			GPU_MODULATE, GPU_MODULATE,
-			__builtin_bswap32(color) //RGBA8 -> ABGR8
-		);
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_CONSTANT, GPU_CONSTANT),
+		GPU_TEVSOURCES(GPU_TEXTURE0, GPU_CONSTANT, GPU_CONSTANT),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_MODULATE, GPU_MODULATE,
+		__builtin_bswap32(color) //RGBA8 -> ABGR8
+	);
 
-		GPU_SetTexture(
-			GPU_TEXUNIT0,
-			(u32 *)osConvertVirtToPhys((u32)texture->data),
-			// width and height swapped?
-			texture->pow2_h,
-			texture->pow2_w,
-			GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
-			texture->pixel_format
-		);
+	GPU_SetTexture(
+		GPU_TEXUNIT0,
+		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		// width and height swapped?
+		texture->pow2_h,
+		texture->pow2_w,
+		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
+		texture->pixel_format
+	);
 
-		GPU_SetAttributeBuffers(
-			2, // number of attributes
-			(u32*)osConvertVirtToPhys((u32)vertices),
-			GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
-			0xFFFC, //0b1100
-			0x10,
-			1, //number of buffers
-			(u32[]){0x0}, // buffer offsets (placeholders)
-			(u64[]){0x10}, // attribute permutations for each buffer
-			(u8[]){2} // number of attributes for each buffer
-		);
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
 
-		GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
-	}
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
 }
 
 static const u8 tile_order[] = {
