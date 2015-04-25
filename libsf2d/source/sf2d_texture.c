@@ -115,7 +115,7 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	int w = texture->width;
 	int h = texture->height;
 
@@ -152,7 +152,7 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float rad)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	int w2 = texture->width/2.0f;
 	int h2 = texture->height/2.0f;
 
@@ -199,7 +199,7 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
 void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       0.5f};
 	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       0.5f};
 	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, 0.5f};
@@ -235,7 +235,7 @@ void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x
 void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_scale, float y_scale)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	int ws = texture->width * x_scale;
 	int hs = texture->height * y_scale;
 
@@ -272,7 +272,7 @@ void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_
 void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	//Don't even try to understand what I'm doing here (because I don't even understand it).
 	//Matrices are boring.
 
@@ -324,7 +324,7 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
 void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 color)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
-
+	if(!vertices)return;
 	int w = texture->width;
 	int h = texture->height;
 
