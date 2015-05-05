@@ -25,6 +25,16 @@ extern "C" {
  */
 #define RGBA8(r, g, b, a) ((((r)&0xFF)<<24) | (((g)&0xFF)<<16) | (((b)&0xFF)<<8) | (((a)&0xFF)<<0))
 
+/**
+ * @brief Default size of the GPU commands FIFO buffer
+ */
+#define SF2D_GPUCMD_DEFAULT_SIZE 0x40000
+
+/**
+ * @brief Default size of the temporary memory pool
+ */
+#define SF2D_TEMPPOOL_DEFAULT_SIZE 0x10000
+
 // Enums
 
 /**
@@ -87,6 +97,7 @@ typedef struct {
 
 typedef struct {
 	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
+	int tiled;                 /**< Whether the tetxure is tiled or not */
 	GPU_TEXCOLOR pixel_format; /**< Pixel format */
 	int width;                 /**< Texture width */
 	int height;                /**< Texture height */
@@ -103,6 +114,14 @@ typedef struct {
  * @return Whether the initialization has been successful or not
  */
 int sf2d_init();
+
+/**
+ * @brief Initializates the library (with advanced settings)
+ * @param gpucmd_size the size of the GPU FIFO
+ * @param temppool_size the size of the temporary pool
+ * @return Whether the initialization has been successful or not
+ */
+int sf2d_init_advanced(int gpucmd_size, int temppool_size);
 
 /**
  * @brief Finishes the library
@@ -157,6 +176,12 @@ void *sf2d_pool_malloc(u32 size);
  * @param alignment the alignment to where allocate the memory
  */
 void *sf2d_pool_memalign(u32 size, u32 alignment);
+
+/**
+ * @brief Returns the temporary pool's free space
+ * @return the temporary pool's free space
+ */
+unsigned int sf2d_pool_space_free();
 
 /**
  * @brief Empties the temporary pool
@@ -230,6 +255,19 @@ void sf2d_free_texture(sf2d_texture *texture);
  * @param source_h height (in pixels) of the RGAB8 source
  */
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h);
+
+/**
+ * @brief Creates a texture and fills it from a RGBA8 memory source.
+ * The returned texture is already tiled.
+ * @param src_buffer pointer to the RGBA8 data to fill from
+ * @param src_w width (in pixels) of the RGAB8 source
+ * @param src_h height (in pixels) of the RGAB8 source
+ * @param pixel_format the pixel_format of the texture to create
+ * @param place where to allocate the texture
+ * @return a pointer to the newly created, filled, and tiled texture
+ */
+
+sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, GPU_TEXCOLOR pixel_format, sf2d_place place);
 
 /**
  * @brief Binds a texture to a GPU texture unit

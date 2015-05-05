@@ -2,8 +2,6 @@
 #include "sf2d_private.h"
 #include "shader_vsh_shbin.h"
 
-#define GPU_CMD_SIZE  0x40000
-#define POOL_SIZE     0x10000
 
 static int sf2d_initialized = 0;
 static u32 clear_color = RGBA8(0x00, 0x00, 0x00, 0xFF);
@@ -11,6 +9,7 @@ static u32 *gpu_cmd = NULL;
 // Temporary memory pool
 static void *pool_addr = NULL;
 static u32 pool_index = 0;
+static u32 pool_size = 0;
 //GPU framebuffer address
 static u32 *gpu_fb_addr = NULL;
 //GPU depth buffer address
@@ -35,28 +34,36 @@ static float ortho_matrix_bot[4*4];
 
 int sf2d_init()
 {
+	return sf2d_init_advanced(
+		SF2D_GPUCMD_DEFAULT_SIZE,
+		SF2D_TEMPPOOL_DEFAULT_SIZE);
+}
+
+int sf2d_init_advanced(int gpucmd_size, int temppool_size)
+{
 	if (sf2d_initialized) return 0;
-	
+
 	gpu_fb_addr       = vramMemAlign(400*240*8, 0x100);
 	gpu_depth_fb_addr = vramMemAlign(400*240*8, 0x100);
-	gpu_cmd           = linearAlloc(GPU_CMD_SIZE * 4);
-	pool_addr         = linearAlloc(POOL_SIZE);
-	
+	gpu_cmd           = linearAlloc(gpucmd_size * 4);
+	pool_addr         = linearAlloc(temppool_size);
+	pool_size         = temppool_size;
+
 	gfxInitDefault();
 	GPU_Init(NULL);
 	gfxSet3D(false);
-	GPU_Reset(NULL, gpu_cmd, GPU_CMD_SIZE);
-	
+	GPU_Reset(NULL, gpu_cmd, gpucmd_size);
+
 	//Setup the shader
 	dvlb = DVLB_ParseFile((u32 *)shader_vsh_shbin, shader_vsh_shbin_size);
 	shaderProgramInit(&shader);
 	shaderProgramSetVsh(&shader, &dvlb->DVLE[0]);
-	
+
 	//Get shader uniform descriptors
 	projection_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "projection");
-	
+
 	shaderProgramUse(&shader);
-	
+
 	matrix_init_orthographic(ortho_matrix_top, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_init_orthographic(ortho_matrix_bot, 0.0f, 320.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
@@ -74,16 +81,16 @@ int sf2d_init()
 	gspWaitForP3D();
 
 	sf2d_pool_reset();
-	
+
 	sf2d_initialized = 1;
-	
+
 	return 1;
 }
 
 int sf2d_fini()
 {
 	if (!sf2d_initialized) return 0;
-	
+
 	gfxExit();
 	shaderProgramFree(&shader);
 	DVLB_Free(dvlb);
@@ -92,9 +99,9 @@ int sf2d_fini()
 	linearFree(gpu_cmd);
 	vramFree(gpu_fb_addr);
 	vramFree(gpu_depth_fb_addr);
-	
+
 	sf2d_initialized = 0;
-	
+
 	return 1;
 }
 
@@ -126,7 +133,7 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 	} else {
 		screen_w = 320;
 	}
-	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr), 
+	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr),
 		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
 		0, 0, 240, screen_w);
 
@@ -147,7 +154,7 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 	);
 
 	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
-	
+
 	GPU_SetDummyTexEnv(1);
 	GPU_SetDummyTexEnv(2);
 	GPU_SetDummyTexEnv(3);
@@ -204,7 +211,7 @@ float sf2d_get_fps()
 
 void *sf2d_pool_malloc(u32 size)
 {
-	if ((pool_index + size) < POOL_SIZE) {
+	if ((pool_index + size) < pool_size) {
 		void *addr = (void *)((u32)pool_addr + pool_index);
 		pool_index += size;
 		return addr;
@@ -215,12 +222,17 @@ void *sf2d_pool_malloc(u32 size)
 void *sf2d_pool_memalign(u32 size, u32 alignment)
 {
 	u32 new_index = (pool_index + alignment - 1) & ~(alignment - 1);
-	if ((new_index + size) < POOL_SIZE) {
+	if ((new_index + size) < pool_size) {
 		void *addr = (void *)((u32)pool_addr + new_index);
 		pool_index = new_index + size;
 		return addr;
 	}
 	return NULL;
+}
+
+unsigned int sf2d_pool_space_free()
+{
+	return pool_size - pool_index;
 }
 
 void sf2d_pool_reset()
