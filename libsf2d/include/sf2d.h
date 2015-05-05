@@ -54,7 +54,8 @@ typedef enum {
  */
 
 typedef struct {
-	float u, v;
+	float u;  /**< First component of the vector */
+	float v;  /**< Second component of the vector */
 } sf2d_vector_2f;
 
 /**
@@ -62,7 +63,9 @@ typedef struct {
  */
 
 typedef struct {
-	float x, y, z;
+	float x;  /**< First component of the vector */
+	float y;  /**< Second component of the vector */
+	float z;  /**< Third component of the vector */
 } sf2d_vector_3f;
 
 /**
@@ -70,7 +73,10 @@ typedef struct {
  */
 
 typedef struct {
-	float r, g, b, a;
+	float r;  /**< Red component of the vector/color */
+	float g;  /**< Green component of the vector/color */
+	float b;  /**< Blue component of the vector/color */
+	float a;  /**< Alpha component of the vector/color */
 } sf2d_vector_4f;
 
 /**
@@ -78,8 +84,8 @@ typedef struct {
  */
 
 typedef struct {
-	sf2d_vector_3f position;
-	sf2d_vector_4f color;
+	sf2d_vector_3f position;  /**< Position of the vertex */
+	sf2d_vector_4f color;     /**< Color of the vertex */
 } sf2d_vertex_pos_col;
 
 /**
@@ -87,8 +93,8 @@ typedef struct {
  */
 
 typedef struct {
-	sf2d_vector_3f position;
-	sf2d_vector_2f texcoord;
+	sf2d_vector_3f position;  /**< Position of the vertex */
+	sf2d_vector_2f texcoord;  /**< Texture coordinates of the vertex */
 } sf2d_vertex_pos_tex;
 
 /**
@@ -138,7 +144,7 @@ void sf2d_set_3D(int enable);
 /**
  * @brief Starts a frame
  * @param screen target screen
- * @param side target eye (ony for top screen)
+ * @param side target eye (only for top screen)
  */
 void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side);
 
@@ -210,7 +216,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color);
  * @param x x coordinate of the top left corner of the rectangle
  * @param y y coordinate of the top left corner of the rectangle
  * @param w rectangle width
- * @param w rectangle height
+ * @param h rectangle height
  * @param color the color to draw the rectangle
  */
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
@@ -220,7 +226,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
  * @param x x coordinate of the top left corner of the rectangle
  * @param y y coordinate of the top left corner of the rectangle
  * @param w rectangle width
- * @param w rectangle height
+ * @param h rectangle height
  * @param color the color to draw the rectangle
  * @param rad rotation (in radians) to draw the rectangle
  */
@@ -342,8 +348,6 @@ void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 colo
 /**
  * @brief Tiles a texture
  * @param texture the texture to tile
- * @param x the x coordinate to draw the texture to
- * @param y the y coordinate to draw the texture to
  */
 void sf2d_texture_tile32(sf2d_texture *texture);
 
