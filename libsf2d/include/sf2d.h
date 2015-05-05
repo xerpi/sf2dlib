@@ -283,6 +283,14 @@ sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, i
 void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
 
 /**
+ * @brief Binds a texture to a GPU texture unit with a constant color
+ * @param texture the texture to bind
+ * @param unit GPU texture unit to bind to
+ * @param color the color the bind with the texture
+ */
+void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 color);
+
+/**
  * @brief Draws a texture
  * @param texture the texture to draw
  * @param x the x coordinate to draw the texture to
@@ -344,6 +352,19 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
  * @param color the color to blend with the texture
  */
 void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 color);
+
+/**
+ * @brief Draws a part of a texture blended with a color
+ * @param texture the texture to draw
+ * @param x the x coordinate to draw the texture to
+ * @param y the y coordinate to draw the texture to
+ * @param tex_x the starting point (x coordinate) where to start drawing
+ * @param tex_y the starting point (y coordinate) where to start drawing
+ * @param tex_w the width to draw from the starting point
+ * @param tex_h the height to draw from the starting point
+ * @param color the color to blend with the texture
+ */
+void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h, u32 color);
 
 /**
  * @brief Tiles a texture
