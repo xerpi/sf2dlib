@@ -142,7 +142,7 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
 	GPU_SetStencilOp(GPU_KEEP, GPU_KEEP, GPU_KEEP);
 	GPU_SetBlendingColor(0,0,0,0);
-	GPU_SetDepthTestAndWriteMask(true, GPU_ALWAYS, GPU_WRITE_ALL);
+	GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_ALL);
 	GPUCMD_AddMaskedWrite(GPUREG_0062, 0x1, 0);
 	GPUCMD_AddWrite(GPUREG_0118, 0);
 

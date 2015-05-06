@@ -367,6 +367,21 @@ void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 colo
 void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h, u32 color);
 
 /**
+ * @brief Draws a texture blended in a certain depth
+ * @param texture the texture to draw
+ * @param x the x coordinate to draw the texture to
+ * @param y the y coordinate to draw the texture to
+ * @param z the depth to draw the texture to
+ * @note The z parameter is a value in the [-32768, +32767] range,
+ *       where -32768 is the deepest and +32767 the toppest.
+ *       By default, the textures are drawn at z = 0.
+ *       Keep in mind that this function won't do
+ *       Order-independent transparency (OIT), so you should use fully
+ *       opaque textures to get good results.
+ */
+void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed short z);
+
+/**
  * @brief Tiles a texture
  * @param texture the texture to tile
  */

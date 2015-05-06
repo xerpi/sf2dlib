@@ -164,10 +164,10 @@ void sf2d_draw_texture(const sf2d_texture *texture, int x, int y)
 	int w = texture->width;
 	int h = texture->height;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, SF2D_DEFAULT_DEPTH};
 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
@@ -202,10 +202,10 @@ void sf2d_draw_texture_rotate(const sf2d_texture *texture, int x, int y, float r
 	int w2 = texture->width/2.0f;
 	int h2 = texture->height/2.0f;
 
-	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, SF2D_DEFAULT_DEPTH};
 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
@@ -247,10 +247,10 @@ void sf2d_draw_texture_part(const sf2d_texture *texture, int x, int y, int tex_x
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 	if (!vertices) return;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, SF2D_DEFAULT_DEPTH};
 
 	float u0 = tex_x/(float)texture->pow2_w;
 	float v0 = tex_y/(float)texture->pow2_h;
@@ -287,10 +287,10 @@ void sf2d_draw_texture_scale(const sf2d_texture *texture, int x, int y, float x_
 	int ws = texture->width * x_scale;
 	int hs = texture->height * y_scale;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,    (float)y,    0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+ws, (float)y,    0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,    (float)y+hs, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+ws, (float)y+hs, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,    (float)y,    SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+ws, (float)y,    SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,    (float)y+hs, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+ws, (float)y+hs, SF2D_DEFAULT_DEPTH};
 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
@@ -328,10 +328,10 @@ void sf2d_draw_texture_rotate_cut_scale(const sf2d_texture *texture, int x, int 
 	int w2 = (tex_w * x_scale)/2.0f;
 	int h2 = (tex_h * y_scale)/2.0f;
 
-	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, SF2D_DEFAULT_DEPTH};
 
 	float u0 = tex_x/(float)texture->pow2_w;
 	float v0 = tex_y/(float)texture->pow2_h;
@@ -378,10 +378,10 @@ void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 colo
 	int w = texture->width;
 	int h = texture->height;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, SF2D_DEFAULT_DEPTH};
 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
@@ -413,10 +413,10 @@ void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 	if (!vertices) return;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,       (float)y+tex_h, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+tex_w, (float)y+tex_h, SF2D_DEFAULT_DEPTH};
 
 	float u0 = tex_x/(float)texture->pow2_w;
 	float v0 = tex_y/(float)texture->pow2_h;
@@ -429,6 +429,45 @@ void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int
 	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
 
 	sf2d_bind_texture_color(texture, GPU_TEXUNIT0, color);
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys((u32)vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+}
+
+void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed short z)
+{
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
+	if (!vertices) return;
+
+	int w = texture->width;
+	int h = texture->height;
+	float depth = z/32768.0f + 0.5f;
+
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   depth};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   depth};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, depth};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, depth};
+
+	float u = texture->width/(float)texture->pow2_w;
+	float v = texture->height/(float)texture->pow2_h;
+
+	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+
+	sf2d_bind_texture(texture, GPU_TEXUNIT0);
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes

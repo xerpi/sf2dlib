@@ -87,7 +87,7 @@ all: $(BUILD)
 
 lib:
 	@[ -d $@ ] || mkdir -p $@
-	
+
 $(BUILD): lib
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
@@ -102,6 +102,10 @@ install: $(BUILD)
 	@cp $(OUTPUT) $(CTRULIB)/lib
 	@cp include/sf2d.h $(CTRULIB)/include
 	@echo "Installed!"
+
+#---------------------------------------------------------------------------------
+docs:
+	@doxygen Doxyfile
 
 #---------------------------------------------------------------------------------
 else

@@ -6,10 +6,10 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x0+1.0f, (float)y0+1.0f, 0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x0-1.0f, (float)y0-1.0f, 0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x1+1.0f, (float)y1+1.0f, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x1-1.0f, (float)y1-1.0f, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x0+1.0f, (float)y0+1.0f, SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x0-1.0f, (float)y0-1.0f, SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x1+1.0f, (float)y1+1.0f, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x1-1.0f, (float)y1-1.0f, SF2D_DEFAULT_DEPTH};
 
 	u8 r = (color>>24) & 0xFF;
 	u8 g = (color>>16) & 0xFF;
@@ -51,10 +51,10 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
-	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, SF2D_DEFAULT_DEPTH};
 
 	u8 r = (color>>24) & 0xFF;
 	u8 g = (color>>16) & 0xFF;
@@ -99,10 +99,10 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	int w2 = w/2.0f;
 	int h2 = h/2.0f;
 
-	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, 0.5f};
-	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, 0.5f};
-	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, 0.5f};
-	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, 0.5f};
+	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, SF2D_DEFAULT_DEPTH};
+	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, SF2D_DEFAULT_DEPTH};
 
 	u8 r = (color>>24) & 0xFF;
 	u8 g = (color>>16) & 0xFF;
