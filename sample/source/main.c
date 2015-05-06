@@ -43,10 +43,12 @@ int main()
 	u16 touch_x = 320/2;
 	u16 touch_y = 240/2;
 	touchPosition touch;
+	circlePosition circle;
 
 	while (aptMainLoop()) {
 
 		hidScanInput();
+		hidCircleRead(&circle);
 		if (hidKeysDown() & KEY_START) break;
 		if (hidKeysHeld() & KEY_TOUCH) {
 			hidTouchRead(&touch);
@@ -60,7 +62,7 @@ int main()
 			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_texture_rotate(tex1, 200-tex1->width/2, 120-tex1->height/2, rad);
+			sf2d_draw_texture_rotate(tex1, 320/2-tex1->width/2 + circle.dx, 240/2-tex1->height/2 - circle.dy, rad);
 
 		sf2d_end_frame();
 
