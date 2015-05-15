@@ -387,6 +387,18 @@ void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed s
  */
 void sf2d_texture_tile32(sf2d_texture *texture);
 
+/**
+ * @brief Sets the scissor test
+ * @param mode the test mode (disable, invert or normal)
+ * @param x the starting x coordinate of the scissor
+ * @param y the starting y coordinate of the scissor
+ * @param w the width of the scissor rectangle
+ * @param h the height of the scissor rectangle
+ * @note This function should be called after sf2d_start_frame.
+ *       The scissor will remain active until the sf2d_end_frame call.
+ */
+void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h);
+
 #ifdef __cplusplus
 }
 #endif

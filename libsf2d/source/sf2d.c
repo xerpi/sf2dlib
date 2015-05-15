@@ -169,11 +169,15 @@ void sf2d_end_frame()
 	GPUCMD_FlushAndRun(NULL);
 	gspWaitForP3D();
 
-	//Draw the screen
+	//Copy the GPU rendered FB to the screen FB
 	if (cur_screen == GFX_TOP) {
-		GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x019000F0, (u32*)gfxGetFramebuffer(GFX_TOP, cur_side, NULL, NULL), 0x019000F0, 0x1000);
+		GX_SetDisplayTransfer(NULL, gpu_fb_addr, GX_BUFFER_DIM(240, 400),
+			(u32 *)gfxGetFramebuffer(GFX_TOP, cur_side, NULL, NULL),
+			GX_BUFFER_DIM(240, 400), 0x1000);
 	} else {
-		GX_SetDisplayTransfer(NULL, gpu_fb_addr, 0x014000F0, (u32*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), 0x014000F0, 0x1000);
+		GX_SetDisplayTransfer(NULL, gpu_fb_addr, GX_BUFFER_DIM(240, 320),
+			(u32 *)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL),
+			GX_BUFFER_DIM(240, 320), 0x1000);
 	}
 	gspWaitForPPF();
 
@@ -243,4 +247,13 @@ void sf2d_pool_reset()
 void sf2d_set_clear_color(u32 color)
 {
 	clear_color = color;
+}
+
+void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
+{
+	if (cur_screen == GFX_TOP) {
+		GPU_SetScissorTest(mode, 240 - (y + h), 400 - (x + w), 240 - y, 400 - x);
+	} else {
+		GPU_SetScissorTest(mode, 240 - (y + h), 320 - (x + w), 240 - y, 320 - x);
+	}
 }
