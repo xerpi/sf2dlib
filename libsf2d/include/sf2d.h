@@ -35,6 +35,11 @@ extern "C" {
  */
 #define SF2D_TEMPPOOL_DEFAULT_SIZE 0x10000
 
+/**
+ * @brief Default depth (Z coordinate) to draw the textures to
+ */
+#define SF2D_DEFAULT_DEPTH 0.5f
+
 // Enums
 
 /**

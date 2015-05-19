@@ -4,7 +4,6 @@
 #include <3ds.h>
 #include "sf2d.h"
 
-#define SF2D_DEFAULT_DEPTH 0.5f
 
 void GPU_SetDummyTexEnv(u8 num);
 
