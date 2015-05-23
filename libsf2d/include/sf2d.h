@@ -159,7 +159,7 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side);
 void sf2d_end_frame();
 
 /**
- * @brief Swaps the framebuffers, should be called once after all the frames has been finished
+ * @brief Swaps the framebuffers, should be called once after all the frames have been finished
  */
 void sf2d_swapbuffers();
 
