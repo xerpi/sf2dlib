@@ -122,14 +122,13 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 		} else {
 			matrix_gpu_set_uniform(ortho_matrix_bot, projection_desc);
 		}
+		cur_screen = screen;
 	}
-
-	cur_screen = screen;
-	cur_side = side;
 
 	int screen_w;
 	if (screen == GFX_TOP) {
 		screen_w = 400;
+		cur_side = side;
 	} else {
 		screen_w = 320;
 	}
@@ -256,4 +255,14 @@ void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
 	} else {
 		GPU_SetScissorTest(mode, 240 - (y + h), 320 - (x + w), 240 - y, 320 - x);
 	}
+}
+
+gfxScreen_t sf2d_get_current_screen()
+{
+	return cur_screen;
+}
+
+gfx3dSide_t sf2d_get_current_side()
+{
+	return cur_side;
 }

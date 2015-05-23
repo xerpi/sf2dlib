@@ -404,6 +404,18 @@ void sf2d_texture_tile32(sf2d_texture *texture);
  */
 void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h);
 
+/**
+ * @brief Returns the current screen (latest call to sf2d_start_frame)
+ * @note The returned value can be GFX_TOP or GFX_BOTTOM.
+ */
+gfxScreen_t sf2d_get_current_screen();
+
+/**
+ * @brief Returns the current screen side (latest call to sf2d_start_frame)
+ * @note The returned value can be GFX_LEFT or GFX_RIGHT.
+ */
+gfx3dSide_t sf2d_get_current_side();
+
 #ifdef __cplusplus
 }
 #endif
