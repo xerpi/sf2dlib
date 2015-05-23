@@ -28,12 +28,12 @@ extern "C" {
 /**
  * @brief Default size of the GPU commands FIFO buffer
  */
-#define SF2D_GPUCMD_DEFAULT_SIZE 0x40000
+#define SF2D_GPUCMD_DEFAULT_SIZE 0x80000
 
 /**
  * @brief Default size of the temporary memory pool
  */
-#define SF2D_TEMPPOOL_DEFAULT_SIZE 0x10000
+#define SF2D_TEMPPOOL_DEFAULT_SIZE 0x80000
 
 /**
  * @brief Default depth (Z coordinate) to draw the textures to
