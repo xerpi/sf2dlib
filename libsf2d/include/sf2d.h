@@ -43,6 +43,28 @@ extern "C" {
 // Enums
 
 /**
+ * @brief Represents a texture format
+ */
+
+typedef enum {
+	TEXFMT_RGBA8  =  0,
+	TEXFMT_RGB8   =  1,
+	TEXFMT_RGB5A1 =  2,
+	TEXFMT_RGB565 =  3,
+	TEXFMT_RGBA4  =  4,
+	TEXFMT_IA8    =  5,
+
+	TEXFMT_I8     =  7,
+	TEXFMT_A8     =  8,
+	TEXFMT_IA4    =  9,
+	TEXFMT_I4     = 10,
+	TEXFMT_A4     = 11,
+	TEXFMT_ETC1   = 12,
+	TEXFMT_ETC1A4 = 13
+} sf2d_texfmt;
+
+
+/**
  * @brief Data allocated on the RAM or VRAM
  */
 
@@ -109,7 +131,7 @@ typedef struct {
 typedef struct {
 	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
 	int tiled;                 /**< Whether the tetxure is tiled or not */
-	GPU_TEXCOLOR pixel_format; /**< Pixel format */
+	sf2d_texfmt pixel_format;  /**< Pixel format */
 	int width;                 /**< Texture width */
 	int height;                /**< Texture height */
 	int pow2_w;                /**< Nearest power of 2 >= width */
@@ -250,7 +272,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
  * @param place where to allocate the texture
  * @return a pointer to the newly created texture
  */
-sf2d_texture *sf2d_create_texture(int width, int height, GPU_TEXCOLOR pixel_format, sf2d_place place);
+sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_format, sf2d_place place);
 
 /**
  * @brief Frees a texture
@@ -278,7 +300,7 @@ void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int sour
  * @return a pointer to the newly created, filled, and tiled texture
  */
 
-sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, GPU_TEXCOLOR pixel_format, sf2d_place place);
+sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, sf2d_texfmt pixel_format, sf2d_place place);
 
 /**
  * @brief Binds a texture to a GPU texture unit
@@ -385,6 +407,24 @@ void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int
  *       opaque textures to get good results.
  */
 void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed short z);
+
+/**
+ * @brief Changes a pixel of the texture
+ * @param texture the texture to change the pixel
+ * @param x the x coordinate to change the pixel
+ * @param y the y coordinate to change the pixel
+ * @param new_color the new color to set to the pixel at (x, y)
+ */
+void sf2d_set_pixel(sf2d_texture *texture, int x, int y, u32 new_color);
+
+/**
+ * @brief Gets a pixel of the texture
+ * @param texture the texture to get the pixel
+ * @param x the x coordinate to get the pixel
+ * @param y the y coordinate to get the pixel
+ * @return the pixel at (x, y)
+ */
+u32 sf2d_get_pixel(sf2d_texture *texture, int x, int y);
 
 /**
  * @brief Tiles a texture
