@@ -517,6 +517,7 @@ static inline u32 get_morton_offset(u32 x, u32 y, u32 bytes_per_pixel)
 
 void sf2d_set_pixel(sf2d_texture *texture, int x, int y, u32 new_color)
 {
+	y = (texture->pow2_h - 1 - y);
 	if (texture->tiled) {
 		u32 coarse_y = y & ~7;
 		u32 offset = get_morton_offset(x, y, 4) + coarse_y * texture->pow2_w * 4;
@@ -528,6 +529,7 @@ void sf2d_set_pixel(sf2d_texture *texture, int x, int y, u32 new_color)
 
 u32 sf2d_get_pixel(sf2d_texture *texture, int x, int y)
 {
+	y = (texture->pow2_h - 1 - y);
 	if (texture->tiled) {
 		u32 coarse_y = y & ~7;
 		u32 offset = get_morton_offset(x, y, 4) + coarse_y * texture->pow2_w * 4;
@@ -552,7 +554,7 @@ void sf2d_texture_tile32(sf2d_texture *texture)
 			u32 coarse_y = j & ~7;
 			u32 dst_offset = get_morton_offset(i, j, 4) + coarse_y * texture->pow2_w * 4;
 
-			u32 v = ((u32 *)texture->data)[i + j*texture->pow2_w];
+			u32 v = ((u32 *)texture->data)[i + (texture->pow2_h - 1 - j)*texture->pow2_w];
 			*(u32 *)(tmp + dst_offset) = __builtin_bswap32(v);
 		}
 	}
