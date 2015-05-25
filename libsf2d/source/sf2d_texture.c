@@ -136,9 +136,8 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 	GPU_SetTexture(
 		unit,
 		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		// width and height swapped?
-		texture->pow2_h,
 		texture->pow2_w,
+		texture->pow2_h,
 		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
 		texture->pixel_format
 	);
@@ -161,9 +160,8 @@ void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 
 	GPU_SetTexture(
 		unit,
 		(u32 *)osConvertVirtToPhys((u32)texture->data),
-		// width and height swapped?
-		texture->pow2_h,
 		texture->pow2_w,
+		texture->pow2_h,
 		GPU_TEXTURE_MAG_FILTER(GPU_NEAREST) | GPU_TEXTURE_MIN_FILTER(GPU_NEAREST),
 		texture->pixel_format
 	);
