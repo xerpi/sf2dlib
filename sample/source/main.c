@@ -67,6 +67,7 @@ int main()
 			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
 			sf2d_draw_texture_rotate(tex2, touch_x-tex1->width/2, touch_y-tex1->height/2, -rad);
 			sf2d_draw_rectangle(160-15 + cosf(rad)*50.0f, 120-15 + sinf(rad)*50.0f, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
+			sf2d_draw_fill_circle(40, 40, 35, RGBA8(0x00, 0xFF, 0x00, 0xFF));
 		sf2d_end_frame();
 
 		rad += 0.2f;
