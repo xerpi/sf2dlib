@@ -43,8 +43,8 @@ int sf2d_init_advanced(int gpucmd_size, int temppool_size)
 {
 	if (sf2d_initialized) return 0;
 
-	gpu_fb_addr       = vramMemAlign(400*240*8, 0x100);
-	gpu_depth_fb_addr = vramMemAlign(400*240*8, 0x100);
+	gpu_fb_addr       = vramMemAlign(400*240*4, 0x100);
+	gpu_depth_fb_addr = vramMemAlign(400*240*2, 0x100);
 	gpu_cmd           = linearAlloc(gpucmd_size * 4);
 	pool_addr         = linearAlloc(temppool_size);
 	pool_size         = temppool_size;
