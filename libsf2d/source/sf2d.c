@@ -6,6 +6,8 @@
 static int sf2d_initialized = 0;
 static u32 clear_color = RGBA8(0x00, 0x00, 0x00, 0xFF);
 static u32 *gpu_cmd = NULL;
+//GPU init variables
+static int gpu_cmd_size = 0;
 // Temporary memory pool
 static void *pool_addr = NULL;
 static u32 pool_index = 0;
@@ -30,7 +32,11 @@ static u32 projection_desc = -1;
 //Matrix
 static float ortho_matrix_top[4*4];
 static float ortho_matrix_bot[4*4];
-
+//Apt hook cookie
+static aptHookCookie apt_hook_cookie;
+//Functions
+static void apt_hook_func(int hook, void* param);
+static void reset_gpu_apt_resume();
 
 int sf2d_init()
 {
@@ -48,6 +54,7 @@ int sf2d_init_advanced(int gpucmd_size, int temppool_size)
 	gpu_cmd           = linearAlloc(gpucmd_size * 4);
 	pool_addr         = linearAlloc(temppool_size);
 	pool_size         = temppool_size;
+	gpu_cmd_size      = gpucmd_size;
 
 	gfxInitDefault();
 	GPU_Init(NULL);
@@ -67,6 +74,9 @@ int sf2d_init_advanced(int gpucmd_size, int temppool_size)
 	matrix_init_orthographic(ortho_matrix_top, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_init_orthographic(ortho_matrix_bot, 0.0f, 320.0f, 0.0f, 240.0f, 0.0f, 1.0f);
 	matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
+
+	//Register the apt callback hook
+	aptHook(&apt_hook_cookie, apt_hook_func, NULL);
 
 	vblank_wait = 1;
 	current_fps = 0.0f;
@@ -90,6 +100,8 @@ int sf2d_init_advanced(int gpucmd_size, int temppool_size)
 int sf2d_fini()
 {
 	if (!sf2d_initialized) return 0;
+
+	aptUnhook(&apt_hook_cookie);
 
 	gfxExit();
 	shaderProgramFree(&shader);
@@ -265,4 +277,32 @@ gfxScreen_t sf2d_get_current_screen()
 gfx3dSide_t sf2d_get_current_side()
 {
 	return cur_side;
+}
+
+static void apt_hook_func(int hook, void* param)
+{
+	if (hook == APTHOOK_ONRESTORE) {
+		reset_gpu_apt_resume();
+	}
+}
+
+static void reset_gpu_apt_resume()
+{
+	gfxExit();
+	gfxInitDefault();
+	GPU_Init(NULL);
+	gfxSet3D(false);
+	GPU_Reset(NULL, gpu_cmd, gpu_cmd_size);
+
+	shaderProgramUse(&shader);
+
+	if (cur_screen == GFX_TOP) {
+		matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
+	} else {
+		matrix_gpu_set_uniform(ortho_matrix_bot, projection_desc);
+	}
+
+	GPUCMD_Finalize();
+	GPUCMD_FlushAndRun(NULL);
+	gspWaitForP3D();
 }
