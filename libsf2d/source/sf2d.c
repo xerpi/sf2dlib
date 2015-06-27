@@ -291,7 +291,6 @@ static void reset_gpu_apt_resume()
 	gfxExit();
 	gfxInitDefault();
 	GPU_Init(NULL);
-	gfxSet3D(false);
 	GPU_Reset(NULL, gpu_cmd, gpu_cmd_size);
 
 	shaderProgramUse(&shader);
