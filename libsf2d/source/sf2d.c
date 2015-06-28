@@ -202,7 +202,7 @@ void sf2d_swapbuffers()
 {
 	gfxSwapBuffersGpu();
 	if (vblank_wait) {
-		gspWaitForEvent(GSPEVENT_VBlank0, true);
+		gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 	//Calculate FPS
 	frames++;
@@ -288,11 +288,7 @@ static void apt_hook_func(int hook, void* param)
 
 static void reset_gpu_apt_resume()
 {
-	gfxExit();
-	gfxInitDefault();
-	GPU_Init(NULL);
-	GPU_Reset(NULL, gpu_cmd, gpu_cmd_size);
-
+	GPU_Reset(NULL, gpu_cmd, gpu_cmd_size); // Only required for custom GPU cmd sizes
 	shaderProgramUse(&shader);
 
 	if (cur_screen == GFX_TOP) {
