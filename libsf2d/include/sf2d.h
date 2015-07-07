@@ -327,6 +327,14 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
 void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 color);
 
 /**
+ * @brief Binds a texture to a GPU texture unit with custom parameters
+ * @param texture the texture to bind
+ * @param unit GPU texture unit to bind to
+ * @param params the parameters the bind with the texture
+ */
+void sf2d_bind_texture_parameters(const sf2d_texture *texture, GPU_TEXUNIT unit, unsigned int params);
+
+/**
  * @brief Draws a texture
  * @param texture the texture to draw
  * @param x the x coordinate to draw the texture to
@@ -416,6 +424,22 @@ void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int
  *       opaque textures to get good results.
  */
 void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed short z);
+
+/**
+ * @brief Draws a texture using custom texture coordinates and parameters
+ * @param texture the texture to draw
+ * @param left the left coordinate of the texture to start drawing
+ * @param top the top coordinate of the texture to start drawing
+ * @param width the width to draw from the starting left coordinate
+ * @param height the height to draw from the starting top coordinate
+ * @param u0 the U texture coordinate of the left vertices
+ * @param v0 the V texture coordinate of the top vertices
+ * @param u1 the U texture coordinate of the right vertices
+ * @param v1 the V texture coordinate of the bottom vertices
+ * @param params the parameters to draw the texture with
+ */
+void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom,
+	float u0, float v0, float u1, float v1, unsigned int params);
 
 /**
  * @brief Changes a pixel of the texture
