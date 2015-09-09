@@ -44,7 +44,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
@@ -89,7 +89,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad)
@@ -147,7 +147,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	GPU_DrawArray(GPU_TRIANGLE_STRIP, 4);
+	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
@@ -208,5 +208,5 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 		(u8[]){2} // number of attributes for each buffer
 	);
 
-	GPU_DrawArray(GPU_TRIANGLE_FAN, num_segments + 2);
+	GPU_DrawArray(GPU_TRIANGLE_FAN, 0, num_segments + 2);
 }
