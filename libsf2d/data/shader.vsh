@@ -1,7 +1,7 @@
 // setup output map
-.alias outpos  o0    as position
-.alias outtex0 o1.xy as texcoord0
-.alias outcol  o2    as color
+.alias outpos  o0 as position
+.alias outtex0 o1 as texcoord0
+.alias outcol  o2 as color
 
 // setup uniform map, for use with SHDR_GetUniformRegister
 .alias projection c0-c3
@@ -14,7 +14,7 @@ main:
 	dp4 outpos.w, projection[3], v0
 
 	// outtex0 = in.texcoord
-	mov outtex0, v1.xy
+	mov outtex0, v1
 
 	// outcolor = in.color
 	mov outcol, v1
