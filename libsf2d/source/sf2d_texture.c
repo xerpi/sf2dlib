@@ -205,6 +205,8 @@ static inline void sf2d_draw_texture_generic(const sf2d_texture *texture, int x,
 
 	int w = texture->width;
 	int h = texture->height;
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   SF2D_DEFAULT_DEPTH};
 	vertices[1].position = (sf2d_vector_3f){(float)x+w, (float)y,   SF2D_DEFAULT_DEPTH};
@@ -214,10 +216,10 @@ static inline void sf2d_draw_texture_generic(const sf2d_texture *texture, int x,
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u,    v};
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
@@ -253,6 +255,8 @@ static inline void sf2d_draw_texture_rotate_hotspot_generic(const sf2d_texture *
 
 	const float w = texture->width;
 	const float h = texture->height;
+	const int flip_h = texture->flip_h & 1;
+	const int flip_v = texture->flip_v & 1;
 
 	vertices[0].position.x = -center_x;
 	vertices[0].position.y = -center_y;
@@ -273,10 +277,10 @@ static inline void sf2d_draw_texture_rotate_hotspot_generic(const sf2d_texture *
 	float u = w/(float)texture->pow2_w;
 	float v = h/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u,    v};
 
 	const float c = cosf(rad);
 	const float s = sinf(rad);
@@ -334,6 +338,9 @@ static inline void sf2d_draw_texture_part_generic(const sf2d_texture *texture, i
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 	if (!vertices) return;
+	
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       SF2D_DEFAULT_DEPTH};
 	vertices[1].position = (sf2d_vector_3f){(float)x+tex_w, (float)y,       SF2D_DEFAULT_DEPTH};
@@ -345,10 +352,10 @@ static inline void sf2d_draw_texture_part_generic(const sf2d_texture *texture, i
 	float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
 	float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v1};
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
@@ -384,6 +391,8 @@ static inline void sf2d_draw_texture_scale_generic(const sf2d_texture *texture, 
 
 	int ws = texture->width * x_scale;
 	int hs = texture->height * y_scale;
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,    (float)y,    SF2D_DEFAULT_DEPTH};
 	vertices[1].position = (sf2d_vector_3f){(float)x+ws, (float)y,    SF2D_DEFAULT_DEPTH};
@@ -393,10 +402,10 @@ static inline void sf2d_draw_texture_scale_generic(const sf2d_texture *texture, 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u,    v};
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
@@ -429,16 +438,19 @@ static inline void sf2d_draw_texture_part_scale_generic(const sf2d_texture *text
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 	if (!vertices) return;
+	
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	float u0 = tex_x/(float)texture->pow2_w;
 	float v0 = tex_y/(float)texture->pow2_h;
 	float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
 	float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v1};
 
 	tex_w *= x_scale;
 	tex_h *= y_scale;
@@ -482,6 +494,8 @@ static inline void sf2d_draw_texture_part_rotate_scale_generic(const sf2d_textur
 
 	int w2 = (tex_w * x_scale)/2.0f;
 	int h2 = (tex_h * y_scale)/2.0f;
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	vertices[0].position = (sf2d_vector_3f){(float)-w2, (float)-h2, SF2D_DEFAULT_DEPTH};
 	vertices[1].position = (sf2d_vector_3f){(float) w2, (float)-h2, SF2D_DEFAULT_DEPTH};
@@ -493,10 +507,10 @@ static inline void sf2d_draw_texture_part_rotate_scale_generic(const sf2d_textur
 	float u1 = (tex_x+tex_w)/(float)texture->pow2_w;
 	float v1 = (tex_y+tex_h)/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v1};
 
 	const float c = cosf(rad);
 	const float s = sinf(rad);
@@ -542,6 +556,8 @@ static inline void sf2d_draw_texture_depth_generic(const sf2d_texture *texture, 
 
 	int w = texture->width;
 	int h = texture->height;
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 	float depth = z/32768.0f + 0.5f;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   depth};
@@ -552,10 +568,10 @@ static inline void sf2d_draw_texture_depth_generic(const sf2d_texture *texture, 
 	float u = texture->width/(float)texture->pow2_w;
 	float v = texture->height/(float)texture->pow2_h;
 
-	vertices[0].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
-	vertices[1].texcoord = (sf2d_vector_2f){u,    0.0f};
-	vertices[2].texcoord = (sf2d_vector_2f){0.0f, v};
-	vertices[3].texcoord = (sf2d_vector_2f){u,    v};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, 0.0f};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u,    0.0f};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){0.0f, v};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u,    v};
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
@@ -589,16 +605,19 @@ void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_tex));
 	if (!vertices) return;
+	
+	int flip_h = texture->flip_h & 1;
+	int flip_v = texture->flip_v & 1;
 
 	vertices[0].position = (sf2d_vector_3f){left,  top,    SF2D_DEFAULT_DEPTH};
 	vertices[1].position = (sf2d_vector_3f){right, top,    SF2D_DEFAULT_DEPTH};
 	vertices[2].position = (sf2d_vector_3f){left,  bottom, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){right, bottom, SF2D_DEFAULT_DEPTH};
 
-	vertices[0].texcoord = (sf2d_vector_2f){u0, v0};
-	vertices[1].texcoord = (sf2d_vector_2f){u1, v0};
-	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
-	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
+	vertices[0+(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v0};
+	vertices[1-(flip_h)+(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v0};
+	vertices[2+(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u0, v1};
+	vertices[3-(flip_h)-(flip_v*2)].texcoord = (sf2d_vector_2f){u1, v1};
 
 	sf2d_bind_texture_parameters(texture, GPU_TEXUNIT0, params);
 

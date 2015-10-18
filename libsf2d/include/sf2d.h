@@ -132,6 +132,8 @@ typedef struct {
 	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
 	int tiled;                 /**< Whether the tetxure is tiled or not */
 	sf2d_texfmt pixel_format;  /**< Pixel format */
+	int flip_h;                /**< Whether the texture is flipped horizontally */
+	int flip_v;                /**< Whether the texture is flipped vertically */
 	int width;                 /**< Texture width */
 	int height;                /**< Texture height */
 	int pow2_w;                /**< Nearest power of 2 >= width */
