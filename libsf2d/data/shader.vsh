@@ -7,15 +7,15 @@
 .alias inpos v0
 .alias inarg v1
 
-; Uniforms, for use with SHDR_GetUniformRegister
-.fvec mvpMtx[4]
+; Uniforms
+.fvec projection[4]
 
 .proc main
-	; outpos = mvpMtx * in.pos
-	dp4 outpos.x, mvpMtx[0], inpos
-	dp4 outpos.y, mvpMtx[1], inpos
-	dp4 outpos.z, mvpMtx[2], inpos
-	dp4 outpos.w, mvpMtx[3], inpos
+	; outpos = projection * in.pos
+	dp4 outpos.x, projection[0], inpos
+	dp4 outpos.y, projection[1], inpos
+	dp4 outpos.z, projection[2], inpos
+	dp4 outpos.w, projection[3], inpos
 
 	; outtc0 = in.texcoord
 	mov outtc0, inarg
