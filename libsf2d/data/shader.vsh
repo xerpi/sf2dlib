@@ -12,10 +12,10 @@
 
 .proc main
 	; outpos = projection * in.pos
-	dp4 outpos.x, projection[0], inpos
-	dp4 outpos.y, projection[1], inpos
-	dp4 outpos.z, projection[2], inpos
-	dp4 outpos.w, projection[3], inpos
+	dp4 outpos.x, projection[0].wzyx, inpos
+	dp4 outpos.y, projection[1].wzyx, inpos
+	dp4 outpos.z, projection[2].wzyx, inpos
+	dp4 outpos.w, projection[3].wzyx, inpos
 
 	; outtc0 = in.texcoord
 	mov outtc0, inarg
