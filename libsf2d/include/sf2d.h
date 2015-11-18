@@ -132,7 +132,7 @@ typedef struct {
 	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
 	int tiled;                 /**< Whether the tetxure is tiled or not */
 	sf2d_texfmt pixel_format;  /**< Pixel format */
-	int tex_filters;           /**< Texture min and mag filters */
+	u32 params;                /**< Texture filters and wrapping */
 	int width;                 /**< Texture width */
 	int height;                /**< Texture height */
 	int pow2_w;                /**< Nearest power of 2 >= width */
@@ -283,7 +283,8 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color);
  * @return a pointer to the newly created texture
  * @note Before drawing the texture, it needs to be tiled
  *       by calling sf2d_texture_tile32.
- *       The default filters are both min and mag GPU_NEAREST.
+ *       The default texture params are both min and mag filters
+ *       GPU_NEAREST, and both S and T wrappings GPU_CLAMP_TO_BORDER.
  */
 sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_format, sf2d_place place);
 
@@ -339,19 +340,20 @@ void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 
 void sf2d_bind_texture_parameters(const sf2d_texture *texture, GPU_TEXUNIT unit, unsigned int params);
 
 /**
- * @brief Changes the texture min and mag filters
- * @param texture the texture to change the filters
- * @param filters the new texture filters to use. You can use the
- *        GPU_TEXTURE_[MIN,MAG]_FILTER macros as helpers.
+ * @brief Changes the texture params (filters and wrapping)
+ * @param texture the texture to change the params
+ * @param params the new texture params to use. You can use the
+ *        GPU_TEXTURE_[MIN,MAG]_FILTER and GPU_TEXTURE_WRAP_[S,T]
+ *        macros as helpers.
  */
-void sf2d_texture_set_tex_filters(sf2d_texture *texture, int filters);
+void sf2d_texture_set_params(sf2d_texture *texture, u32 params);
 
 /**
- * @brief Returns the texture min and mag filters
- * @param texture the texture to get the filters
- * @return the current texture filters of texture
+ * @brief Returns the texture params
+ * @param texture the texture to get the params
+ * @return the current texture params of texture
  */
-int sf2d_texture_get_tex_filters(const sf2d_texture *texture);
+int sf2d_texture_get_params(const sf2d_texture *texture);
 
 /**
  * @brief Draws a texture
