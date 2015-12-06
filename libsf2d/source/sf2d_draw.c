@@ -4,7 +4,7 @@
 
 void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 {
-	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
+	sf2d_vertex_pos_col *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x0+1.0f, (float)y0+1.0f, SF2D_DEFAULT_DEPTH};
@@ -49,7 +49,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 {
-	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
+	sf2d_vertex_pos_col *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,   (float)y,   SF2D_DEFAULT_DEPTH};
@@ -94,7 +94,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 
 void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad)
 {
-	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc(4 * sizeof(sf2d_vertex_pos_col));
+	sf2d_vertex_pos_col *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
 	int w2 = w/2.0f;
@@ -153,7 +153,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 {
 	static const int num_segments = 100;
-	sf2d_vertex_pos_col *vertices = sf2d_pool_malloc((num_segments + 2) * sizeof(sf2d_vertex_pos_col));
+	sf2d_vertex_pos_col *vertices = sf2d_pool_calloc(num_segments + 2, sizeof(sf2d_vertex_pos_col));
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x, (float)y, SF2D_DEFAULT_DEPTH};

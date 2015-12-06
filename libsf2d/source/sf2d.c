@@ -245,6 +245,11 @@ void *sf2d_pool_memalign(u32 size, u32 alignment)
 	return NULL;
 }
 
+void *sf2d_pool_calloc(u32 nmemb, u32 size)
+{
+	return sf2d_pool_memalign(nmemb * size, size);
+}
+
 unsigned int sf2d_pool_space_free()
 {
 	return pool_size - pool_index;

@@ -212,6 +212,15 @@ void *sf2d_pool_malloc(u32 size);
 void *sf2d_pool_memalign(u32 size, u32 alignment);
 
 /**
+ * @brief Allocates aligned memory for an array from a temporary pool. Works as sf2d_pool_malloc
+ * @param nmemb the number of elements to allocate
+ * @param size the size (and alignment) of each element to allocate
+ * @note Unlike libc's calloc, this function does not initialize to 0,
+ *       and returns a pointer aligned to size.
+ */
+void *sf2d_pool_calloc(u32 nmemb, u32 size);
+
+/**
  * @brief Returns the temporary pool's free space
  * @return the temporary pool's free space
  */
