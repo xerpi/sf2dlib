@@ -165,7 +165,7 @@ void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 
 		GPU_TEVOPERANDS(0, 0, 0),
 		GPU_TEVOPERANDS(0, 0, 0),
 		GPU_MODULATE, GPU_MODULATE,
-		__builtin_bswap32(color) //RGBA8 -> ABGR8
+		color
 	);
 
 	GPU_SetTexture(
@@ -655,9 +655,9 @@ void sf2d_set_pixel(sf2d_texture *texture, int x, int y, u32 new_color)
 	if (texture->tiled) {
 		u32 coarse_y = y & ~7;
 		u32 offset = get_morton_offset(x, y, 4) + coarse_y * texture->pow2_w * 4;
-		*(u32 *)(texture->data + offset) = __builtin_bswap32(new_color);
+		*(u32 *)(texture->data + offset) = new_color;
 	} else {
-		((u32 *)texture->data)[x + y * texture->pow2_w] = __builtin_bswap32(new_color);
+		((u32 *)texture->data)[x + y * texture->pow2_w] = new_color;
 	}
 }
 
@@ -667,9 +667,9 @@ u32 sf2d_get_pixel(sf2d_texture *texture, int x, int y)
 	if (texture->tiled) {
 		u32 coarse_y = y & ~7;
 		u32 offset = get_morton_offset(x, y, 4) + coarse_y * texture->pow2_w * 4;
-		return __builtin_bswap32(*(u32 *)(texture->data + offset));
+		return *(u32 *)(texture->data + offset);
 	} else {
-		return  __builtin_bswap32(((u32 *)texture->data)[x + y * texture->pow2_w]);
+		return ((u32 *)texture->data)[x + y * texture->pow2_w];
 	}
 }
 
@@ -689,7 +689,7 @@ void sf2d_texture_tile32(sf2d_texture *texture)
 			u32 dst_offset = get_morton_offset(i, j, 4) + coarse_y * texture->pow2_w * 4;
 
 			u32 v = ((u32 *)texture->data)[i + (texture->pow2_h - 1 - j)*texture->pow2_w];
-			*(u32 *)(tmp + dst_offset) = __builtin_bswap32(v);
+			*(u32 *)(tmp + dst_offset) = __builtin_bswap32(v); /* RGBA8 -> ABGR8 */
 		}
 	}
 

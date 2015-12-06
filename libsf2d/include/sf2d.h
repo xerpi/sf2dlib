@@ -101,24 +101,13 @@ typedef struct {
 } sf2d_vector_3f;
 
 /**
- * @brief Represents a four dimensional unsigned char vector
- */
-
-typedef struct {
-	unsigned char r;  /**< Red component of the vector/color */
-	unsigned char g;  /**< Green component of the vector/color */
-	unsigned char b;  /**< Blue component of the vector/color */
-	unsigned char a;  /**< Alpha component of the vector/color */
-} sf2d_vector_4uc;
-
-/**
  * @brief Represents a vertex containing position (float)
- *        and color (unsigned char)
+ *        and color (unsigned int)
  */
 
 typedef struct {
 	sf2d_vector_3f position;  /**< Position of the vertex */
-	sf2d_vector_4uc color;    /**< Color of the vertex */
+	u32 color;                /**< Color of the vertex */
 } sf2d_vertex_pos_col;
 
 /**

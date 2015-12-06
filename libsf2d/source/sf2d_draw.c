@@ -12,7 +12,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 	vertices[2].position = (sf2d_vector_3f){(float)x1+1.0f, (float)y1+1.0f, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float)x1-1.0f, (float)y1-1.0f, SF2D_DEFAULT_DEPTH};
 
-	vertices[0].color = *(sf2d_vector_4uc *)&color;
+	vertices[0].color = color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -52,7 +52,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, SF2D_DEFAULT_DEPTH};
 
-	vertices[0].color = *(sf2d_vector_4uc *)&color;
+	vertices[0].color = color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -95,7 +95,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, SF2D_DEFAULT_DEPTH};
 
-	vertices[0].color = *(sf2d_vector_4uc *)&color;
+	vertices[0].color = color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -142,7 +142,7 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x, (float)y, SF2D_DEFAULT_DEPTH};
-	vertices[0].color = *(sf2d_vector_4uc *)&color;
+	vertices[0].color = color;
 
 	float theta = 2 * M_PI / (float)num_segments;
 	float c = cosf(theta);
