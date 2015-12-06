@@ -214,7 +214,7 @@ int sf2d_texture_get_params(const sf2d_texture *texture)
 
 static inline void sf2d_draw_texture_generic(const sf2d_texture *texture, int x, int y)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	int w = texture->width;
@@ -262,7 +262,7 @@ void sf2d_draw_texture_blend(const sf2d_texture *texture, int x, int y, u32 colo
 
 static inline void sf2d_draw_texture_rotate_hotspot_generic(const sf2d_texture *texture, int x, int y, float rad, float center_x, float center_y)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	const float w = texture->width;
@@ -346,7 +346,7 @@ void sf2d_draw_texture_rotate_blend(const sf2d_texture *texture, int x, int y, f
 
 static inline void sf2d_draw_texture_part_generic(const sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x,       (float)y,       SF2D_DEFAULT_DEPTH};
@@ -393,7 +393,7 @@ void sf2d_draw_texture_part_blend(const sf2d_texture *texture, int x, int y, int
 
 static inline void sf2d_draw_texture_scale_generic(const sf2d_texture *texture, int x, int y, float x_scale, float y_scale)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	int ws = texture->width * x_scale;
@@ -441,7 +441,7 @@ void sf2d_draw_texture_scale_blend(const sf2d_texture *texture, int x, int y, fl
 
 static inline void sf2d_draw_texture_part_scale_generic(const sf2d_texture *texture, float x, float y, float tex_x, float tex_y, float tex_w, float tex_h, float x_scale, float y_scale)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	float u0 = tex_x/(float)texture->pow2_w;
@@ -491,7 +491,7 @@ void sf2d_draw_texture_part_scale_blend(const sf2d_texture *texture, float x, fl
 
 static inline void sf2d_draw_texture_part_rotate_scale_generic(const sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	int w2 = (tex_w * x_scale)/2.0f;
@@ -551,7 +551,7 @@ void sf2d_draw_texture_part_rotate_scale_blend(const sf2d_texture *texture, int 
 
 static inline void sf2d_draw_texture_depth_generic(const sf2d_texture *texture, int x, int y, signed short z)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	int w = texture->width;
@@ -601,7 +601,7 @@ void sf2d_draw_texture_depth_blend(const sf2d_texture *texture, int x, int y, si
 
 void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom, float u0, float v0, float u1, float v1, unsigned int params)
 {
-	sf2d_vertex_pos_tex *vertices = sf2d_pool_calloc(4, sizeof(sf2d_vertex_pos_tex));
+	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){left,  top,    SF2D_DEFAULT_DEPTH};
