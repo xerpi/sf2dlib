@@ -12,12 +12,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 	vertices[2].position = (sf2d_vector_3f){(float)x1+1.0f, (float)y1+1.0f, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float)x1-1.0f, (float)y1-1.0f, SF2D_DEFAULT_DEPTH};
 
-	u8 r = (color>>24) & 0xFF;
-	u8 g = (color>>16) & 0xFF;
-	u8 b = (color>>8) & 0xFF;
-	u8 a = color & 0xFF;
-
-	vertices[0].color = (sf2d_vector_4f){r/255.0f,  g/255.0f, b/255.0f, a/255.0f};
+	vertices[0].color = *(sf2d_vector_4uc *)&color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -35,7 +30,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
@@ -57,12 +52,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	vertices[2].position = (sf2d_vector_3f){(float)x,   (float)y+h, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float)x+w, (float)y+h, SF2D_DEFAULT_DEPTH};
 
-	u8 r = (color>>24) & 0xFF;
-	u8 g = (color>>16) & 0xFF;
-	u8 b = (color>>8) & 0xFF;
-	u8 a = color & 0xFF;
-
-	vertices[0].color = (sf2d_vector_4f){r/255.0f,  g/255.0f, b/255.0f, a/255.0f};
+	vertices[0].color = *(sf2d_vector_4uc *)&color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -80,7 +70,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
@@ -105,12 +95,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	vertices[2].position = (sf2d_vector_3f){(float)-w2, (float) h2, SF2D_DEFAULT_DEPTH};
 	vertices[3].position = (sf2d_vector_3f){(float) w2, (float) h2, SF2D_DEFAULT_DEPTH};
 
-	u8 r = (color>>24) & 0xFF;
-	u8 g = (color>>16) & 0xFF;
-	u8 b = (color>>8) & 0xFF;
-	u8 a = color & 0xFF;
-
-	vertices[0].color = (sf2d_vector_4f){r/255.0f,  g/255.0f, b/255.0f, a/255.0f};
+	vertices[0].color = *(sf2d_vector_4uc *)&color;
 	vertices[1].color = vertices[0].color;
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
@@ -138,7 +123,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers
@@ -157,13 +142,7 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 	if (!vertices) return;
 
 	vertices[0].position = (sf2d_vector_3f){(float)x, (float)y, SF2D_DEFAULT_DEPTH};
-
-	u8 r = (color>>24) & 0xFF;
-	u8 g = (color>>16) & 0xFF;
-	u8 b = (color>>8) & 0xFF;
-	u8 a = color & 0xFF;
-
-	vertices[0].color = (sf2d_vector_4f){r/255.0f,  g/255.0f, b/255.0f, a/255.0f};
+	vertices[0].color = *(sf2d_vector_4uc *)&color;
 
 	float theta = 2 * M_PI / (float)num_segments;
 	float c = cosf(theta);
@@ -199,7 +178,7 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys((u32)vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_FLOAT),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
 		1, //number of buffers

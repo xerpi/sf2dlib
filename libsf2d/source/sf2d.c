@@ -193,8 +193,9 @@ void sf2d_end_frame()
 	gspWaitForPPF();
 
 	//Clear the screen
-	GX_SetMemoryFill(NULL, gpu_fb_addr, clear_color, &gpu_fb_addr[0x2EE00],
-		0x201, gpu_depth_fb_addr, 0x00000000, &gpu_depth_fb_addr[0x2EE00], 0x201);
+	GX_SetMemoryFill(NULL,
+		gpu_fb_addr, clear_color, &gpu_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH,
+		gpu_depth_fb_addr, 0, &gpu_depth_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH);
 	gspWaitForPSC0();
 }
 
@@ -262,7 +263,11 @@ void sf2d_pool_reset()
 
 void sf2d_set_clear_color(u32 color)
 {
-	clear_color = color;
+	// GX_SetMemoryFill wants the color inverted?
+	clear_color =  RGBA8_GET_R(color) << 24 |
+		       RGBA8_GET_G(color) << 16 |
+		       RGBA8_GET_B(color) <<  8 |
+		       RGBA8_GET_A(color) <<  0;
 }
 
 void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
