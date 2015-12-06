@@ -4,7 +4,7 @@
 
 
 static int sf2d_initialized = 0;
-static u32 clear_color = RGBA8(0x00, 0x00, 0x00, 0xFF);
+static u32 clear_color = 0;
 static u32 *gpu_cmd = NULL;
 //GPU init variables
 static int gpu_cmd_size = 0;
