@@ -83,7 +83,7 @@ sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_forma
 	texture->data = data;
 
 	if (place == SF2D_PLACE_VRAM) {
-		GX_SetMemoryFill(NULL, texture->data, 0x00000000, (u32*)&((u8*)texture->data)[texture->data_size], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH,
+		GX_MemoryFill(texture->data, 0x00000000, (u32*)&((u8*)texture->data)[texture->data_size], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH,
 			NULL, 0x00000000, NULL, 0);
 		gspWaitForPSC0();
 	} else {
