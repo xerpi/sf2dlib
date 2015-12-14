@@ -35,7 +35,7 @@ static float ortho_matrix_bot[4*4];
 //Apt hook cookie
 static aptHookCookie apt_hook_cookie;
 //Functions
-static void apt_hook_func(int hook, void* param);
+static void apt_hook_func(APT_HookType hook, void *param);
 static void reset_gpu_apt_resume();
 
 int sf2d_init()
@@ -144,8 +144,8 @@ void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 	} else {
 		screen_w = 320;
 	}
-	GPU_SetViewport((u32 *)osConvertVirtToPhys((u32)gpu_depth_fb_addr),
-		(u32 *)osConvertVirtToPhys((u32)gpu_fb_addr),
+	GPU_SetViewport((u32 *)osConvertVirtToPhys(gpu_depth_fb_addr),
+		(u32 *)osConvertVirtToPhys(gpu_fb_addr),
 		0, 0, 240, screen_w);
 
 	GPU_DepthMap(-1.0f, 0.0f);
@@ -289,7 +289,7 @@ gfx3dSide_t sf2d_get_current_side()
 	return cur_side;
 }
 
-static void apt_hook_func(int hook, void* param)
+static void apt_hook_func(APT_HookType hook, void *param)
 {
 	if (hook == APTHOOK_ONRESTORE) {
 		reset_gpu_apt_resume();

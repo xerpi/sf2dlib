@@ -146,7 +146,7 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit)
 
 	GPU_SetTexture(
 		unit,
-		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		(u32 *)osConvertVirtToPhys(texture->data),
 		texture->pow2_w,
 		texture->pow2_h,
 		texture->params,
@@ -170,7 +170,7 @@ void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 
 
 	GPU_SetTexture(
 		unit,
-		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		(u32 *)osConvertVirtToPhys(texture->data),
 		texture->pow2_w,
 		texture->pow2_h,
 		texture->params,
@@ -194,7 +194,7 @@ void sf2d_bind_texture_parameters(const sf2d_texture *texture, GPU_TEXUNIT unit,
 
 	GPU_SetTexture(
 		unit,
-		(u32 *)osConvertVirtToPhys((u32)texture->data),
+		(u32 *)osConvertVirtToPhys(texture->data),
 		texture->pow2_w,
 		texture->pow2_h,
 		params,
@@ -235,7 +235,7 @@ static inline void sf2d_draw_texture_generic(const sf2d_texture *texture, int x,
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -304,7 +304,7 @@ static inline void sf2d_draw_texture_rotate_hotspot_generic(const sf2d_texture *
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -366,7 +366,7 @@ static inline void sf2d_draw_texture_part_generic(const sf2d_texture *texture, i
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -414,7 +414,7 @@ static inline void sf2d_draw_texture_scale_generic(const sf2d_texture *texture, 
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -464,7 +464,7 @@ static inline void sf2d_draw_texture_part_scale_generic(const sf2d_texture *text
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -524,7 +524,7 @@ static inline void sf2d_draw_texture_part_rotate_scale_generic(const sf2d_textur
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -573,7 +573,7 @@ static inline void sf2d_draw_texture_depth_generic(const sf2d_texture *texture, 
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,
@@ -618,7 +618,7 @@ void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 2, GPU_FLOAT),
 		0xFFFC, //0b1100
 		0x10,

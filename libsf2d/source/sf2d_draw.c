@@ -29,7 +29,7 @@ void sf2d_draw_line(int x0, int y0, int x1, int y1, u32 color)
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
@@ -69,7 +69,7 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
@@ -122,7 +122,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
@@ -177,7 +177,7 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
-		(u32*)osConvertVirtToPhys((u32)vertices),
+		(u32*)osConvertVirtToPhys(vertices),
 		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
 		0xFFFC, //0b1100
 		0x10,
