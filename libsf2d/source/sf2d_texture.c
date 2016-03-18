@@ -131,8 +131,13 @@ void sf2d_free_target(sf2d_rendertarget *target)
 	//free(target); // unnecessary since the texture is the start of the target struct
 }
 
-void sf2d_clear_target(sf2d_rendertarget *target, u32* color) {
-	sf2d_fill_texture_from_RGBA8(&(target->texture), color, target->texture.width, target->texture.height);
+void sf2d_clear_target(sf2d_rendertarget *target, u32 color) {
+	color = ((color>>24)&0x000000FF) | ((color>>8)&0x0000FF00) | ((color<<8)&0x00FF0000) | ((color<<24)&0xFF000000); // reverse byte order
+
+	int itarget = target->texture.width * target->texture.height;
+	for (int i = 0; i < itarget; i++) { memcpy(target->texture.data + i*4, &color, 4); }
+
+	sf2d_texture_tile32(&(target->texture));
 }
 
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h)

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "sf2d.h"
 #include "sf2d_private.h"
 #include "shader_vsh_shbin.h"
@@ -33,7 +34,7 @@ static u32 projection_desc = -1;
 static float ortho_matrix_top[4*4];
 static float ortho_matrix_bot[4*4];
 //Rendertarget things
-static int usingRenderTarget = 0;
+static sf2d_rendertarget * currentRenderTarget = NULL;
 static void * targetDepthBuffer;
 static int targetDepthBufferLen = 0;
 //Apt hook cookie
@@ -186,9 +187,9 @@ void sf2d_start_frame_target(sf2d_rendertarget *target)
 	// Upload saved uniform
 	matrix_gpu_set_uniform(target->projection, projection_desc);
 
-	int bufferLen = target->texture.width * target->texture.height * 3; // assume 24bit depth buffer
+	int bufferLen = target->texture.width * target->texture.height * 4; // assume 24bit depth buffer
 	if (bufferLen > targetDepthBufferLen) { // expand depth buffer
-		linearFree(targetDepthBuffer);
+		if (targetDepthBufferLen > 0) linearFree(targetDepthBuffer);
 		targetDepthBuffer = linearAlloc(bufferLen);
 		memset(targetDepthBuffer, 0, bufferLen);
 		targetDepthBufferLen = bufferLen;
@@ -198,7 +199,7 @@ void sf2d_start_frame_target(sf2d_rendertarget *target)
 		(u32 *)osConvertVirtToPhys(target->texture.data),
 		0, 0, target->texture.height, target->texture.width);
 
-	usingRenderTarget = 1;
+	currentRenderTarget = target;
 
 	GPU_DepthMap(-1.0f, 0.0f);
 	GPU_SetFaceCulling(GPU_CULL_NONE);
@@ -232,7 +233,7 @@ void sf2d_end_frame()
 	GPUCMD_FlushAndRun();
 	gspWaitForP3D();
 
-	if (!usingRenderTarget) {
+	if (!currentRenderTarget) {
 		//Copy the GPU rendered FB to the screen FB
 		if (cur_screen == GFX_TOP) {
 			GX_DisplayTransfer(gpu_fb_addr, GX_BUFFER_DIM(240, 400),
@@ -250,8 +251,12 @@ void sf2d_end_frame()
 			gpu_fb_addr, clear_color, &gpu_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH,
 			gpu_depth_fb_addr, 0, &gpu_depth_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH);
 		gspWaitForPSC0();
+	} else {
+		//gspWaitForPPF();
+		//gspWaitForPSC0();
+		sf2d_texture_tile32(&(currentRenderTarget->texture));
 	}
-	usingRenderTarget = 0;
+	currentRenderTarget = NULL;
 }
 
 void sf2d_swapbuffers()

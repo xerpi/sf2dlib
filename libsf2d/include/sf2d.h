@@ -332,7 +332,7 @@ void sf2d_free_target(sf2d_rendertarget *target);
  * @brief Clears a rendertarget to the specified color
  * @param target pointer to the rendertarget to clear
  */
-void sf2d_clear_target(sf2d_rendertarget *target, u32 *color);
+void sf2d_clear_target(sf2d_rendertarget *target, u32 color);
 
 /**
  * @brief Fills an already allocated texture from a RGBA8 source
