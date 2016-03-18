@@ -4,6 +4,10 @@
 #include "sf2d.h"
 #include "sf2d_private.h"
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 #define TEX_MIN_SIZE 8
 
 static unsigned int nibbles_per_pixel(sf2d_texfmt format)
@@ -93,6 +97,22 @@ sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_forma
 	return texture;
 }
 
+sf2d_rendertarget *sf2d_create_rendertarget(int width, int height)
+{
+	sf2d_texture *tx = sf2d_create_texture(width, height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	sf2d_rendertarget *rt = malloc(sizeof(*rt));
+	//memcpy(rt, tx, sizeof(*tx));
+	rt->texture = *tx;
+	free(tx);
+	//tx = * rt->texture;
+	//rt->projection
+
+	matrix_init_orthographic(rt->projection, 0.0f, width, height, 0.0f, 0.0f, 1.0f);
+	matrix_rotate_z(rt->projection, M_PI / 2.0f);
+
+	return rt;
+}
+
 void sf2d_free_texture(sf2d_texture *texture)
 {
 	if (texture) {
@@ -103,6 +123,16 @@ void sf2d_free_texture(sf2d_texture *texture)
 		}
 		free(texture);
 	}
+}
+
+void sf2d_free_target(sf2d_rendertarget *target)
+{
+	sf2d_free_texture(&(target->texture));
+	//free(target); // unnecessary since the texture is the start of the target struct
+}
+
+void sf2d_clear_target(sf2d_rendertarget *target, u32* color) {
+	sf2d_fill_texture_from_RGBA8(&(target->texture), color, target->texture.width, target->texture.height);
 }
 
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h)

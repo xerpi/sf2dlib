@@ -4,7 +4,6 @@
  * @date 22 March 2015
  * @brief sf2dlib header
  */
-
 #ifndef SF2D_H
 #define SF2D_H
 
@@ -136,6 +135,11 @@ typedef struct {
 	void *data;                /**< Pointer to the data */
 } sf2d_texture;
 
+typedef struct {
+	sf2d_texture texture; // "inherit"/extend standard texture
+	float projection[4*4];     /**< Orthographic projection matrix for this target */
+} sf2d_rendertarget;
+
 // Basic functions
 
 /**
@@ -170,6 +174,12 @@ void sf2d_set_3D(int enable);
  * @param side target eye (only for top screen)
  */
 void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side);
+
+/**
+ * @brief Starts a frame bound to a rendertarget
+ * @param target rendertarget to draw to
+ */
+void sf2d_start_frame_target(sf2d_rendertarget *target);
 
 /**
  * @brief Ends a frame, should be called on pair with sf2d_start_frame
@@ -294,10 +304,35 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color);
 sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_format, sf2d_place place);
 
 /**
+ * @brief Creates an empty rendertarget.
+ * Functions similarly to sf2d_create_texture.
+ * @param width the width of the texture
+ * @param height the height of the texture
+ * @return a pointer to the newly created rendertarget
+ * @note Before drawing the texture, it needs to be tiled
+ *       by calling sf2d_texture_tile32.
+ *       The default texture params are both min and mag filters
+ *       GPU_NEAREST, and both S and T wrappings GPU_CLAMP_TO_BORDER.
+ */
+sf2d_rendertarget *sf2d_create_rendertarget(int width, int height);
+
+/**
  * @brief Frees a texture
  * @param texture pointer to the texture to freeze
  */
 void sf2d_free_texture(sf2d_texture *texture);
+
+/**
+ * @brief Frees a rendertarget
+ * @param target pointer to the rendertarget to free
+ */
+void sf2d_free_target(sf2d_rendertarget *target);
+
+/**
+ * @brief Clears a rendertarget to the specified color
+ * @param target pointer to the rendertarget to clear
+ */
+void sf2d_clear_target(sf2d_rendertarget *target, u32 *color);
 
 /**
  * @brief Fills an already allocated texture from a RGBA8 source

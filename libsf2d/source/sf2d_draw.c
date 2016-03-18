@@ -2,6 +2,10 @@
 #include "sf2d_private.h"
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 void sf2d_draw_line(float x0, float y0, float x1, float y1, float width, u32 color)
 {
 	sf2d_vertex_pos_col *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_col), 8);
