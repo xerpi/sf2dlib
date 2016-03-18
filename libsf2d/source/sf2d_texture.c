@@ -132,6 +132,12 @@ void sf2d_free_target(sf2d_rendertarget *target)
 }
 
 void sf2d_clear_target(sf2d_rendertarget *target, u32 color) {
+	if (color == 0) { // if fully transparent, take a shortcut
+		memset(target->texture.data, 0, target->texture.width * target->texture.height * 4);
+		sf2d_texture_tile32(&(target->texture));
+		return;
+	}
+
 	color = ((color>>24)&0x000000FF) | ((color>>8)&0x0000FF00) | ((color<<8)&0x00FF0000) | ((color<<24)&0xFF000000); // reverse byte order
 
 	int itarget = target->texture.width * target->texture.height;

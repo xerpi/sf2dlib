@@ -187,7 +187,7 @@ void sf2d_start_frame_target(sf2d_rendertarget *target)
 	// Upload saved uniform
 	matrix_gpu_set_uniform(target->projection, projection_desc);
 
-	int bufferLen = target->texture.width * target->texture.height * 4; // assume 24bit depth buffer
+	int bufferLen = target->texture.width * target->texture.height * 4; // apparently depth buffer is (or can be) 32bit?
 	if (bufferLen > targetDepthBufferLen) { // expand depth buffer
 		if (targetDepthBufferLen > 0) linearFree(targetDepthBuffer);
 		targetDepthBuffer = linearAlloc(bufferLen);
