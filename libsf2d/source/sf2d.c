@@ -115,6 +115,7 @@ int sf2d_fini()
 	linearFree(gpu_cmd);
 	vramFree(gpu_fb_addr);
 	vramFree(gpu_depth_fb_addr);
+	linearFree(targetDepthBuffer);
 
 	sf2d_initialized = 0;
 
@@ -187,8 +188,8 @@ void sf2d_start_frame_target(sf2d_rendertarget *target)
 
 	int bufferLen = target->texture.width * target->texture.height * 3; // assume 24bit depth buffer
 	if (bufferLen > targetDepthBufferLen) { // expand depth buffer
-		free(targetDepthBuffer);
-		targetDepthBuffer = malloc(bufferLen);
+		linearFree(targetDepthBuffer);
+		targetDepthBuffer = linearAlloc(bufferLen);
 		memset(targetDepthBuffer, 0, bufferLen);
 		targetDepthBufferLen = bufferLen;
 	}
