@@ -1,0 +1,7 @@
+*.d
+*.o
+*.project
+*.cproject
+libsf2d/.settings/*
+libsf2d/build/*
+libsf2d/lib/*
