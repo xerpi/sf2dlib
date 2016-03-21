@@ -146,21 +146,40 @@ void sf2d_clear_target(sf2d_rendertarget *target, u32 color) {
 	sf2d_texture_tile32(&(target->texture));
 }
 
+void sf2d_texture_tile32_hardware(sf2d_texture *texture, const void *data, int w, int h)
+{
+	if (texture->tiled) return;
+    const u32 flags = (GX_TRANSFER_FLIP_VERT(1) | GX_TRANSFER_OUT_TILED(1) | GX_TRANSFER_RAW_COPY(0) |
+        GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGBA8) |
+        GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO));
+
+	GSPGPU_FlushDataCache(data, (w*h)<<2);
+    GX_DisplayTransfer(
+        (u32*)data,
+        GX_BUFFER_DIM(w, h),
+        (u32*)texture->data,
+        GX_BUFFER_DIM(texture->pow2_w, texture->pow2_h),
+        flags
+    );
+    gspWaitForPPF();
+    GSPGPU_InvalidateDataCache(texture->data, texture->data_size);
+	texture->tiled = 1;
+}
+
 void sf2d_fill_texture_from_RGBA8(sf2d_texture *dst, const void *rgba8, int source_w, int source_h)
 {
 	// TODO: add support for non-RGBA8 textures
 
-	u8 *tmp = linearAlloc(dst->pow2_w * dst->pow2_h * 4);
+	u8 *tmp = linearAlloc((dst->pow2_w * dst->pow2_h)<<2);
 	int i, j;
 	for (i = 0; i < source_h; i++) {
 		for (j = 0; j < source_w; j++) {
-			((u32 *)tmp)[i*dst->pow2_w + j] = ((u32 *)rgba8)[i*source_w + j];
+			((u32 *)tmp)[i*dst->pow2_w + j] = __builtin_bswap32(((u32 *)rgba8)[i*source_w + j]);
 		}
 	}
-	memcpy(dst->data, tmp, dst->pow2_w*dst->pow2_h*4);
+	sf2d_texture_tile32_hardware(dst, tmp, dst->pow2_w, dst->pow2_h);
 	linearFree(tmp);
 
-	sf2d_texture_tile32(dst);
 }
 
 sf2d_texture *sf2d_create_texture_mem_RGBA8(const void *src_buffer, int src_w, int src_h, sf2d_texfmt pixel_format, sf2d_place place)
