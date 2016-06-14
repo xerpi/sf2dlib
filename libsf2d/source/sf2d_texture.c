@@ -8,7 +8,7 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
-#define TEX_MIN_SIZE 8
+#define TEX_MIN_SIZE 32
 
 static unsigned int nibbles_per_pixel(sf2d_texfmt format)
 {
