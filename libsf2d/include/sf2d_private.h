@@ -7,6 +7,8 @@
 
 void GPU_SetDummyTexEnv(u8 num);
 
+void sf2d_draw_rectangle_internal(const sf2d_vertex_pos_col *vertices);
+
 // Vector operations
 
 void vector_mult_matrix4x4(const float *msrc, const sf2d_vector_3f *vsrc, sf2d_vector_3f *vdst);
