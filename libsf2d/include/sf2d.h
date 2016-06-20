@@ -273,6 +273,18 @@ void sf2d_set_clear_color(u32 color);
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color);
 
 /**
+ * @brief Draws a triangle
+ * @param x1 x coordinate of a vertex of the triangle
+ * @param y1 y coordinate of a vertex of the triangle
+ * @param x2 x coordinate of a vertex of the triangle
+ * @param y2 y coordinate of a vertex of the triangle
+ * @param x3 x coordinate of a vertex of the triangle
+ * @param y3 y coordinate of a vertex of the triangle
+ * @param color the color to draw the triangle
+ */
+void sf2d_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3, u32 color);
+
+/**
  * @brief Draws a rotated rectangle
  * @param x x coordinate of the top left corner of the rectangle
  * @param y y coordinate of the top left corner of the rectangle

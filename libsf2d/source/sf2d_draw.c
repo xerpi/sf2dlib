@@ -6,6 +6,30 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
+void sf2d_setup_env_internal(const sf2d_vertex_pos_col* vertices) {
+	GPU_SetTexEnv(
+		0,
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_TEVOPERANDS(0, 0, 0),
+		GPU_REPLACE, GPU_REPLACE,
+		0xFFFFFFFF
+	);
+
+	GPU_SetAttributeBuffers(
+		2, // number of attributes
+		(u32*)osConvertVirtToPhys(vertices),
+		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
+		0xFFFC, //0b1100
+		0x10,
+		1, //number of buffers
+		(u32[]){0x0}, // buffer offsets (placeholders)
+		(u64[]){0x10}, // attribute permutations for each buffer
+		(u8[]){2} // number of attributes for each buffer
+	);
+}
+
 void sf2d_draw_line(float x0, float y0, float x1, float y1, float width, u32 color)
 {
 	sf2d_vertex_pos_col *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_col), 8);
@@ -38,56 +62,23 @@ void sf2d_draw_line(float x0, float y0, float x1, float y1, float width, u32 col
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
 
-	GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_REPLACE, GPU_REPLACE,
-		0xFFFFFFFF
-	);
-
-	GPU_SetAttributeBuffers(
-		2, // number of attributes
-		(u32*)osConvertVirtToPhys(vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
-		0xFFFC, //0b1100
-		0x10,
-		1, //number of buffers
-		(u32[]){0x0}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
-	);
+	sf2d_setup_env_internal(vertices);
 
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_rectangle_internal(const sf2d_vertex_pos_col *vertices)
 {
-    GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_REPLACE, GPU_REPLACE,
-		0xFFFFFFFF
-	);
-
-	GPU_SetAttributeBuffers(
-		2, // number of attributes
-		(u32*)osConvertVirtToPhys(vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
-		0xFFFC, //0b1100
-		0x10,
-		1, //number of buffers
-		(u32[]){0x0}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
-	);
+    sf2d_setup_env_internal(vertices);
 
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
+}
+
+void sf2d_draw_triangle_internal(const sf2d_vertex_pos_col *vertices)
+{
+    sf2d_setup_env_internal(vertices);
+
+	GPU_DrawArray(GPU_TRIANGLES, 0, 3);
 }
 
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
@@ -106,6 +97,22 @@ void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
 	vertices[3].color = vertices[0].color;
 
 	sf2d_draw_rectangle_internal(vertices);
+}
+
+void sf2d_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3, u32 color)
+{
+	sf2d_vertex_pos_col *vertices = sf2d_pool_memalign(3 * sizeof(sf2d_vertex_pos_col), 8);
+	if (!vertices) return;
+
+	vertices[0].position = (sf2d_vector_3f){(float)x1,   (float)y1,   SF2D_DEFAULT_DEPTH};
+	vertices[1].position = (sf2d_vector_3f){(float)x2, (float)y2,   SF2D_DEFAULT_DEPTH};
+	vertices[2].position = (sf2d_vector_3f){(float)x3,   (float)y3, SF2D_DEFAULT_DEPTH};
+
+	vertices[0].color = color;
+	vertices[1].color = vertices[0].color;
+	vertices[2].color = vertices[0].color;
+
+	sf2d_draw_triangle_internal(vertices);
 }
 
 void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad)
@@ -218,27 +225,7 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 	vertices[num_segments + 1].position = vertices[1].position;
 	vertices[num_segments + 1].color = vertices[1].color;
 
-	GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_REPLACE, GPU_REPLACE,
-		0xFFFFFFFF
-	);
-
-	GPU_SetAttributeBuffers(
-		2, // number of attributes
-		(u32*)osConvertVirtToPhys(vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
-		0xFFFC, //0b1100
-		0x10,
-		1, //number of buffers
-		(u32[]){0x0}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
-	);
+	sf2d_setup_env_internal(vertices);
 
 	GPU_DrawArray(GPU_TRIANGLE_FAN, 0, num_segments + 2);
 }
