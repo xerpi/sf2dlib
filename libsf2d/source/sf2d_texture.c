@@ -727,8 +727,7 @@ void sf2d_draw_texture_depth_blend(const sf2d_texture *texture, int x, int y, si
 	sf2d_draw_texture_depth_generic(texture, x, y, z);
 }
 
-
-void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom, float u0, float v0, float u1, float v1, unsigned int params)
+void sf2d_draw_quad_uv_current(float left, float top, float right, float bottom, float u0, float v0, float u1, float v1)
 {
 	sf2d_vertex_pos_tex *vertices = sf2d_pool_memalign(4 * sizeof(sf2d_vertex_pos_tex), 8);
 	if (!vertices) return;
@@ -743,8 +742,6 @@ void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float
 	vertices[2].texcoord = (sf2d_vector_2f){u0, v1};
 	vertices[3].texcoord = (sf2d_vector_2f){u1, v1};
 
-	sf2d_bind_texture_parameters(texture, GPU_TEXUNIT0, params);
-
 	GPU_SetAttributeBuffers(
 		2, // number of attributes
 		(u32*)osConvertVirtToPhys(vertices),
@@ -758,6 +755,18 @@ void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float
 	);
 
 	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
+}
+
+void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom, float u0, float v0, float u1, float v1, unsigned int params)
+{
+	sf2d_bind_texture_parameters(texture, GPU_TEXUNIT0, params);
+	sf2d_draw_quad_uv_current(left, top, right, bottom, u0, v0, u1, v1);
+}
+
+void sf2d_draw_quad_uv_blend(const sf2d_texture *texture, float left, float top, float right, float bottom, float u0, float v0, float u1, float v1, u32 color)
+{
+	sf2d_bind_texture_color(texture, GPU_TEXUNIT0, color);
+	sf2d_draw_quad_uv_current(left, top, right, bottom, u0, v0, u1, v1);
 }
 
 // Grabbed from Citra Emulator (citra/src/video_core/utils.h)
