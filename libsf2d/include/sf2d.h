@@ -665,8 +665,7 @@ void sf2d_draw_texture_depth(const sf2d_texture *texture, int x, int y, signed s
 void sf2d_draw_texture_depth_blend(const sf2d_texture *texture, int x, int y, signed short z, u32 color);
 
 /**
- * @brief Draws a texture using custom texture coordinates and parameters
- * @param texture the texture to draw
+ * @brief Draws the currently-bound texture using custom texture coordinates
  * @param left the left coordinate of the texture to start drawing
  * @param top the top coordinate of the texture to start drawing
  * @param width the width to draw from the starting left coordinate
@@ -675,10 +674,25 @@ void sf2d_draw_texture_depth_blend(const sf2d_texture *texture, int x, int y, si
  * @param v0 the V texture coordinate of the top vertices
  * @param u1 the U texture coordinate of the right vertices
  * @param v1 the V texture coordinate of the bottom vertices
- * @param params the parameters to draw the texture with
  */
+void sf2d_draw_quad_uv_current(float left, float top, float right, float bottom, float u0, float v0,
+	float u1, float v1);
+
+/**
+ * @brief Like sf2d_draw_quad_uv_current, but binds the texture with the given params
+ * @param texture the texture to draw
+ * @param params the parameters to draw the texture with
+ **/
 void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom,
 	float u0, float v0, float u1, float v1, unsigned int params);
+
+/**
+ * @brief Like sf2d_draw_quad_uv_current, but binds the texture with the given blend color
+ * @param texture the texture to draw
+ * @param color the color to blend the texture with
+ **/
+void sf2d_draw_quad_uv_blend(const sf2d_texture *texture, float left, float top, float right, float bottom,
+	float u0, float v0, float u1, float v1, u32 color);
 
 /**
  * @brief Changes a pixel of the texture
