@@ -1,22 +1,13 @@
 #include <string.h>
 #include "sf2d.h"
-#include "sf2d_private.h"
-#include "shader_vsh_shbin.h"
+#include "shader_shbin.h"
 
 
 static int sf2d_initialized = 0;
-static u32 clear_color = 0;
-static u32 *gpu_cmd = NULL;
-//GPU init variables
-static int gpu_cmd_size = 0;
 // Temporary memory pool
 static void *pool_addr = NULL;
 static u32 pool_index = 0;
 static u32 pool_size = 0;
-//GPU framebuffer address
-static u32 *gpu_fb_addr = NULL;
-//GPU depth buffer address
-static u32 *gpu_depth_fb_addr = NULL;
 //VBlank wait
 static int vblank_wait = 1;
 //FPS calculation
@@ -29,19 +20,14 @@ static gfx3dSide_t cur_side = GFX_LEFT;
 //Shader stuff
 static DVLB_s *dvlb = NULL;
 static shaderProgram_s shader;
-static u32 projection_desc = -1;
-//Matrix
-static float ortho_matrix_top[4*4];
-static float ortho_matrix_bot[4*4];
+static int projection_desc = -1;
+static int transform_desc = -1;
+static int useTransform_desc = -1;
 //Rendertarget things
-static sf2d_rendertarget * currentRenderTarget = NULL;
-static void * targetDepthBuffer;
-static int targetDepthBufferLen = 0;
-//Apt hook cookie
-static aptHookCookie apt_hook_cookie;
-//Functions
-static void apt_hook_func(APT_HookType hook, void *param);
-static void reset_gpu_apt_resume();
+static sf2d_rendertarget * targetTopLeft;
+static sf2d_rendertarget * targetTopRight;
+static sf2d_rendertarget * targetBottom;
+static int in_render;
 
 int sf2d_init()
 {
@@ -54,46 +40,42 @@ int sf2d_init_advanced(int gpucmd_size, int temppool_size)
 {
 	if (sf2d_initialized) return 0;
 
-	gpu_fb_addr       = vramMemAlign(400*240*8, 0x100);
-	gpu_depth_fb_addr = vramMemAlign(400*240*8, 0x100);
-	gpu_cmd           = linearAlloc(gpucmd_size * 4);
-	pool_addr         = linearAlloc(temppool_size);
-	pool_size         = temppool_size;
-	gpu_cmd_size      = gpucmd_size;
-
 	gfxInitDefault();
-	GPU_Init(NULL);
 	gfxSet3D(false);
-	GPU_Reset(NULL, gpu_cmd, gpucmd_size);
+	C3D_Init(gpucmd_size*8);
+
+	//Setup rendertargets
+	targetTopLeft  = sf2d_create_rendertarget(400, 240);
+	targetTopRight = sf2d_create_rendertarget(400, 240);
+	targetBottom   = sf2d_create_rendertarget(320, 240);
+	sf2d_set_clear_color(0);
+	C3D_RenderTargetSetOutput(targetTopLeft->target,  GFX_TOP,    GFX_LEFT,  0x1000);
+	C3D_RenderTargetSetOutput(targetTopRight->target, GFX_TOP,    GFX_RIGHT, 0x1000);
+	C3D_RenderTargetSetOutput(targetBottom->target,   GFX_BOTTOM, GFX_LEFT,  0x1000);
+
+	//Setup temp pool
+	pool_addr = linearAlloc(temppool_size);
+	pool_size = temppool_size;
 
 	//Setup the shader
-	dvlb = DVLB_ParseFile((u32 *)shader_vsh_shbin, shader_vsh_shbin_size);
+	dvlb = DVLB_ParseFile((u32 *)shader_shbin, shader_shbin_size);
 	shaderProgramInit(&shader);
 	shaderProgramSetVsh(&shader, &dvlb->DVLE[0]);
 
 	//Get shader uniform descriptors
 	projection_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "projection");
+	transform_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "transform");
+	useTransform_desc = shaderInstanceGetUniformLocation(shader.vertexShader, "useTransform");
 
-	shaderProgramUse(&shader);
-
-	matrix_init_orthographic(ortho_matrix_top, 0.0f, 400.0f, 0.0f, 240.0f, 0.0f, 1.0f);
-	matrix_init_orthographic(ortho_matrix_bot, 0.0f, 320.0f, 0.0f, 240.0f, 0.0f, 1.0f);
-	matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
-
-	//Register the apt callback hook
-	aptHook(&apt_hook_cookie, apt_hook_func, NULL);
+	C3D_BindProgram(&shader);
+	C3D_CullFace(GPU_CULL_NONE);
+	C3D_DepthTest(true, GPU_GEQUAL, GPU_WRITE_ALL);
+	C3D_BoolUnifSet(GPU_VERTEX_SHADER, useTransform_desc, false);
 
 	vblank_wait = 1;
 	current_fps = 0.0f;
 	frames = 0;
 	last_time = osGetTime();
-
-	cur_screen = GFX_TOP;
-	cur_side = GFX_LEFT;
-
-	GPUCMD_Finalize();
-	GPUCMD_FlushAndRun();
-	gspWaitForP3D();
 
 	sf2d_pool_reset();
 
@@ -106,17 +88,12 @@ int sf2d_fini()
 {
 	if (!sf2d_initialized) return 0;
 
-	aptUnhook(&apt_hook_cookie);
+	linearFree(pool_addr);
 
-	gfxExit();
 	shaderProgramFree(&shader);
 	DVLB_Free(dvlb);
-
-	linearFree(pool_addr);
-	linearFree(gpu_cmd);
-	vramFree(gpu_fb_addr);
-	vramFree(gpu_depth_fb_addr);
-	linearFree(targetDepthBuffer);
+	C3D_Fini();
+	gfxExit();
 
 	sf2d_initialized = 0;
 
@@ -128,143 +105,54 @@ void sf2d_set_3D(int enable)
 	gfxSet3D(enable);
 }
 
+void sf2d_set_transform(C3D_Mtx* mtx)
+{
+	C3D_BoolUnifSet(GPU_VERTEX_SHADER, useTransform_desc, mtx != NULL);
+	if (mtx) {
+		C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, transform_desc, mtx);
+	}
+}
+
 void sf2d_start_frame(gfxScreen_t screen, gfx3dSide_t side)
 {
-	sf2d_pool_reset();
-	GPUCMD_SetBufferOffset(0);
+	cur_screen = screen;
+	cur_side = side;
 
-	// Only upload the uniform if the screen changes
-	if (screen != cur_screen) {
-		if (screen == GFX_TOP) {
-			matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
-		} else {
-			matrix_gpu_set_uniform(ortho_matrix_bot, projection_desc);
-		}
-		cur_screen = screen;
-	}
-
-	int screen_w;
 	if (screen == GFX_TOP) {
-		screen_w = 400;
-		cur_side = side;
+		if (side == GFX_LEFT) {
+			sf2d_start_frame_target(targetTopLeft);
+		} else {
+			sf2d_start_frame_target(targetTopRight);
+		}
 	} else {
-		screen_w = 320;
+		sf2d_start_frame_target(targetBottom);
 	}
-	GPU_SetViewport((u32 *)osConvertVirtToPhys(gpu_depth_fb_addr),
-		(u32 *)osConvertVirtToPhys(gpu_fb_addr),
-		0, 0, 240, screen_w);
-
-	GPU_DepthMap(-1.0f, 0.0f);
-	GPU_SetFaceCulling(GPU_CULL_NONE);
-	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
-	GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_KEEP);
-	GPU_SetBlendingColor(0,0,0,0);
-	GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_ALL);
-	GPUCMD_AddMaskedWrite(GPUREG_EARLYDEPTH_TEST1, 0x1, 0);
-	GPUCMD_AddWrite(GPUREG_EARLYDEPTH_TEST2, 0);
-
-	GPU_SetAlphaBlending(
-		GPU_BLEND_ADD,
-		GPU_BLEND_ADD,
-		GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA,
-		GPU_ONE, GPU_ZERO
-	);
-
-	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
-
-	GPU_SetDummyTexEnv(1);
-	GPU_SetDummyTexEnv(2);
-	GPU_SetDummyTexEnv(3);
-	GPU_SetDummyTexEnv(4);
-	GPU_SetDummyTexEnv(5);
 }
 
 void sf2d_start_frame_target(sf2d_rendertarget *target)
 {
-	sf2d_pool_reset();
-	GPUCMD_SetBufferOffset(0);
-
-	// Upload saved uniform
-	matrix_gpu_set_uniform(target->projection, projection_desc);
-
-	int bufferLen = target->texture.width * target->texture.height * 4; // apparently depth buffer is (or can be) 32bit?
-	if (bufferLen > targetDepthBufferLen) { // expand depth buffer
-		if (targetDepthBufferLen > 0) linearFree(targetDepthBuffer);
-		targetDepthBuffer = linearAlloc(bufferLen);
-		memset(targetDepthBuffer, 0, bufferLen);
-		targetDepthBufferLen = bufferLen;
+	if (!in_render) {
+		sf2d_pool_reset();
+		C3D_FrameBegin(vblank_wait ? C3D_FRAME_SYNCDRAW : 0);
+		in_render = 1;
 	}
 
-	GPU_SetViewport((u32 *)osConvertVirtToPhys(targetDepthBuffer),
-		(u32 *)osConvertVirtToPhys(target->texture.data),
-		0, 0, target->texture.height, target->texture.width);
-
-	currentRenderTarget = target;
-
-	GPU_DepthMap(-1.0f, 0.0f);
-	GPU_SetFaceCulling(GPU_CULL_NONE);
-	GPU_SetStencilTest(false, GPU_ALWAYS, 0x00, 0xFF, 0x00);
-	GPU_SetStencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_KEEP);
-	GPU_SetBlendingColor(0,0,0,0);
-	GPU_SetDepthTestAndWriteMask(true, GPU_GEQUAL, GPU_WRITE_ALL);
-	GPUCMD_AddMaskedWrite(GPUREG_EARLYDEPTH_TEST1, 0x1, 0);
-	GPUCMD_AddWrite(GPUREG_EARLYDEPTH_TEST2, 0);
-
-	GPU_SetAlphaBlending(
-		GPU_BLEND_ADD,
-		GPU_BLEND_ADD,
-		GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA,
-		GPU_ONE, GPU_ZERO
-	);
-
-	GPU_SetAlphaTest(false, GPU_ALWAYS, 0x00);
-
-	GPU_SetDummyTexEnv(1);
-	GPU_SetDummyTexEnv(2);
-	GPU_SetDummyTexEnv(3);
-	GPU_SetDummyTexEnv(4);
-	GPU_SetDummyTexEnv(5);
+	C3D_FrameDrawOn(target->target);
+	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, projection_desc, &target->projection);
 }
 
 void sf2d_end_frame()
 {
-	GPU_FinishDrawing();
-	GPUCMD_Finalize();
-	GPUCMD_FlushAndRun();
-	gspWaitForP3D();
-
-	if (!currentRenderTarget) {
-		//Copy the GPU rendered FB to the screen FB
-		if (cur_screen == GFX_TOP) {
-			GX_DisplayTransfer(gpu_fb_addr, GX_BUFFER_DIM(240, 400),
-				(u32 *)gfxGetFramebuffer(GFX_TOP, cur_side, NULL, NULL),
-				GX_BUFFER_DIM(240, 400), 0x1000);
-		} else {
-			GX_DisplayTransfer(gpu_fb_addr, GX_BUFFER_DIM(240, 320),
-				(u32 *)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL),
-				GX_BUFFER_DIM(240, 320), 0x1000);
-		}
-		gspWaitForPPF();
-
-		//Clear the screen
-		GX_MemoryFill(
-			gpu_fb_addr, clear_color, &gpu_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH,
-			gpu_depth_fb_addr, 0, &gpu_depth_fb_addr[240*400], GX_FILL_TRIGGER | GX_FILL_32BIT_DEPTH);
-		gspWaitForPSC0();
-	} else {
-		//gspWaitForPPF();
-		//gspWaitForPSC0();
-		sf2d_texture_tile32(&(currentRenderTarget->texture));
-	}
-	currentRenderTarget = NULL;
+	// Nothing
 }
 
 void sf2d_swapbuffers()
 {
-	gfxSwapBuffersGpu();
-	if (vblank_wait) {
-		gspWaitForEvent(GSPGPU_EVENT_VBlank0, false);
-	}
+	if (!in_render) return;
+
+	in_render = 0;
+	C3D_FrameEnd(0);
+
 	//Calculate FPS
 	frames++;
 	u64 delta_time = osGetTime() - last_time;
@@ -323,19 +211,17 @@ void sf2d_pool_reset()
 
 void sf2d_set_clear_color(u32 color)
 {
-	// GX_SetMemoryFill wants the color inverted?
-	clear_color =  RGBA8_GET_R(color) << 24 |
-		       RGBA8_GET_G(color) << 16 |
-		       RGBA8_GET_B(color) <<  8 |
-		       RGBA8_GET_A(color) <<  0;
+	sf2d_clear_target(targetTopLeft,  color);
+	sf2d_clear_target(targetTopRight, color);
+	sf2d_clear_target(targetBottom,   color);
 }
 
 void sf2d_set_scissor_test(GPU_SCISSORMODE mode, u32 x, u32 y, u32 w, u32 h)
 {
 	if (cur_screen == GFX_TOP) {
-		GPU_SetScissorTest(mode, 240 - (y + h), 400 - (x + w), 240 - y, 400 - x);
+		C3D_SetScissor(mode, 240 - (y + h), 400 - (x + w), 240 - y, 400 - x);
 	} else {
-		GPU_SetScissorTest(mode, 240 - (y + h), 320 - (x + w), 240 - y, 320 - x);
+		C3D_SetScissor(mode, 240 - (y + h), 320 - (x + w), 240 - y, 320 - x);
 	}
 }
 
@@ -347,27 +233,4 @@ gfxScreen_t sf2d_get_current_screen()
 gfx3dSide_t sf2d_get_current_side()
 {
 	return cur_side;
-}
-
-static void apt_hook_func(APT_HookType hook, void *param)
-{
-	if (hook == APTHOOK_ONRESTORE) {
-		reset_gpu_apt_resume();
-	}
-}
-
-static void reset_gpu_apt_resume()
-{
-	GPU_Reset(NULL, gpu_cmd, gpu_cmd_size); // Only required for custom GPU cmd sizes
-	shaderProgramUse(&shader);
-
-	if (cur_screen == GFX_TOP) {
-		matrix_gpu_set_uniform(ortho_matrix_top, projection_desc);
-	} else {
-		matrix_gpu_set_uniform(ortho_matrix_bot, projection_desc);
-	}
-
-	GPUCMD_Finalize();
-	GPUCMD_FlushAndRun();
-	gspWaitForP3D();
 }
