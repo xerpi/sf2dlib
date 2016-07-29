@@ -4,10 +4,9 @@
  * @date 22 March 2015
  * @brief sf2dlib header
  */
-#ifndef SF2D_H
-#define SF2D_H
-
+#pragma once
 #include <3ds.h>
+#include <citro3d.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,7 +82,6 @@ typedef enum {
 typedef enum {
 	SF2D_PLACE_RAM,  /**< RAM allocated */
 	SF2D_PLACE_VRAM, /**< VRAM allocated */
-	SF2D_PLACE_TEMP  /**< Temporary memory pool allocated */
 } sf2d_place;
 
 // Structs
@@ -131,21 +129,15 @@ typedef struct {
  */
 
 typedef struct {
-	sf2d_place place;          /**< Where the texture data resides, RAM or VRAM */
-	int tiled;                 /**< Whether the tetxure is tiled or not */
-	sf2d_texfmt pixel_format;  /**< Pixel format */
-	u32 params;                /**< Texture filters and wrapping */
-	int width;                 /**< Texture width */
-	int height;                /**< Texture height */
-	int pow2_w;                /**< Nearest power of 2 >= width */
-	int pow2_h;                /**< Nearest power of 2 >= height */
-	int data_size;             /**< Size of the raw texture data */
-	void *data;                /**< Pointer to the data */
+	C3D_Tex tex; /**< citro3d texture object */
+	int tiled;   /**< Whether the texture is tiled or not */
+	int width;   /**< Actual texture width */
+	int height;  /**< Actual texture height */
 } sf2d_texture;
 
 typedef struct {
-	sf2d_texture texture; // "inherit"/extend standard texture
-	float projection[4*4];     /**< Orthographic projection matrix for this target */
+	C3D_RenderTarget* target; /**< citro3d render target object */
+	C3D_Mtx projection;       /**< Orthographic projection matrix for this target */
 } sf2d_rendertarget;
 
 // Basic functions
@@ -175,6 +167,12 @@ int sf2d_fini();
  * @param enable whether to enable or disable the 3D
  */
 void sf2d_set_3D(int enable);
+
+/**
+ * @brief Sets a transformation matrix to apply to vertices
+ * @param mtx Transformation matrix (or NULL to disable it)
+ */
+void sf2d_set_transform(C3D_Mtx* mtx);
 
 /**
  * @brief Starts a frame
@@ -415,14 +413,6 @@ void sf2d_bind_texture(const sf2d_texture *texture, GPU_TEXUNIT unit);
  * @param color the color the bind with the texture
  */
 void sf2d_bind_texture_color(const sf2d_texture *texture, GPU_TEXUNIT unit, u32 color);
-
-/**
- * @brief Binds a texture to a GPU texture unit with custom parameters
- * @param texture the texture to bind
- * @param unit GPU texture unit to bind to
- * @param params the parameters the bind with the texture
- */
-void sf2d_bind_texture_parameters(const sf2d_texture *texture, GPU_TEXUNIT unit, unsigned int params);
 
 /**
  * @brief Changes the texture params (filters and wrapping)
@@ -679,12 +669,11 @@ void sf2d_draw_quad_uv_current(float left, float top, float right, float bottom,
 	float u1, float v1);
 
 /**
- * @brief Like sf2d_draw_quad_uv_current, but binds the texture with the given params
+ * @brief Like sf2d_draw_quad_uv_current, but binds the texture
  * @param texture the texture to draw
- * @param params the parameters to draw the texture with
  **/
 void sf2d_draw_quad_uv(const sf2d_texture *texture, float left, float top, float right, float bottom,
-	float u0, float v0, float u1, float v1, unsigned int params);
+	float u0, float v0, float u1, float v1);
 
 /**
  * @brief Like sf2d_draw_quad_uv_current, but binds the texture with the given blend color
@@ -744,6 +733,4 @@ gfx3dSide_t sf2d_get_current_side();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

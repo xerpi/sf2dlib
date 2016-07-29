@@ -2,6 +2,13 @@
 *.o
 *.project
 *.cproject
-libsf2d/.settings/*
-libsf2d/build/*
-libsf2d/lib/*
+*.3dsx
+*.cia
+*.cxi
+*.ncch
+*.3ds
+*.elf
+*.smdh
+build/
+lib/
+.settings/

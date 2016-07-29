@@ -1,5 +1,4 @@
 #include "sf2d.h"
-#include "sf2d_private.h"
 #include <math.h>
 
 #ifndef M_PI
@@ -7,27 +6,19 @@
 #endif
 
 void sf2d_setup_env_internal(const sf2d_vertex_pos_col* vertices) {
-	GPU_SetTexEnv(
-		0,
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVSOURCES(GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_TEVOPERANDS(0, 0, 0),
-		GPU_REPLACE, GPU_REPLACE,
-		0xFFFFFFFF
-	);
+	C3D_TexEnv* env = C3D_GetTexEnv(0);
+	C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, 0, 0);
+	C3D_TexEnvOp(env, C3D_Both, 0, 0, 0);
+	C3D_TexEnvFunc(env, C3D_Both, GPU_REPLACE);
 
-	GPU_SetAttributeBuffers(
-		2, // number of attributes
-		(u32*)osConvertVirtToPhys(vertices),
-		GPU_ATTRIBFMT(0, 3, GPU_FLOAT) | GPU_ATTRIBFMT(1, 4, GPU_UNSIGNED_BYTE),
-		0xFFFC, //0b1100
-		0x10,
-		1, //number of buffers
-		(u32[]){0x0}, // buffer offsets (placeholders)
-		(u64[]){0x10}, // attribute permutations for each buffer
-		(u8[]){2} // number of attributes for each buffer
-	);
+	C3D_AttrInfo* attrInfo = C3D_GetAttrInfo();
+	AttrInfo_Init(attrInfo);
+	AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3);
+	AttrInfo_AddLoader(attrInfo, 1, GPU_UNSIGNED_BYTE, 4);
+
+	C3D_BufInfo* bufInfo = C3D_GetBufInfo();
+	BufInfo_Init(bufInfo);
+	BufInfo_Add(bufInfo, vertices, sizeof(sf2d_vertex_pos_col), 2, 0x10);
 }
 
 void sf2d_draw_line(float x0, float y0, float x1, float y1, float width, u32 color)
@@ -64,21 +55,21 @@ void sf2d_draw_line(float x0, float y0, float x1, float y1, float width, u32 col
 
 	sf2d_setup_env_internal(vertices);
 
-	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
+	C3D_DrawArrays(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_rectangle_internal(const sf2d_vertex_pos_col *vertices)
 {
     sf2d_setup_env_internal(vertices);
 
-	GPU_DrawArray(GPU_TRIANGLE_STRIP, 0, 4);
+	C3D_DrawArrays(GPU_TRIANGLE_STRIP, 0, 4);
 }
 
 void sf2d_draw_triangle_internal(const sf2d_vertex_pos_col *vertices)
 {
     sf2d_setup_env_internal(vertices);
 
-	GPU_DrawArray(GPU_TRIANGLES, 0, 3);
+	C3D_DrawArrays(GPU_TRIANGLES, 0, 3);
 }
 
 void sf2d_draw_rectangle(int x, int y, int w, int h, u32 color)
@@ -133,17 +124,14 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 	vertices[2].color = vertices[0].color;
 	vertices[3].color = vertices[0].color;
 
-	float m[4*4];
-	matrix_set_z_rotation(m, rad);
-	sf2d_vector_3f rot[4];
+	C3D_Mtx m;
+	Mtx_Identity(&m);
+	Mtx_Translate(&m, x+w2, y+h2, 0);
+	Mtx_RotateZ(&m, rad, true);
 
-	int i;
-	for (i = 0; i < 4; i++) {
-		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
-	}
-
+	sf2d_set_transform(&m);
 	sf2d_draw_rectangle_internal(vertices);
+	sf2d_set_transform(NULL);
 }
 
 void sf2d_draw_rectangle_gradient(int x, int y, int w, int h, u32 color1, u32 color2, sf2d_gradient_dir direction)
@@ -182,17 +170,14 @@ void sf2d_draw_rectangle_gradient_rotate(int x, int y, int w, int h, u32 color1,
 	vertices[2].color = (direction == SF2D_LEFT_TO_RIGHT) ? color1 : color2;
 	vertices[3].color = color2;
 
-	float m[4*4];
-	matrix_set_z_rotation(m, rad);
-	sf2d_vector_3f rot[4];
+	C3D_Mtx m;
+	Mtx_Identity(&m);
+	Mtx_Translate(&m, x+w2, y+h2, 0);
+	Mtx_RotateZ(&m, rad, true);
 
-	int i;
-	for (i = 0; i < 4; i++) {
-		vector_mult_matrix4x4(m, &vertices[i].position, &rot[i]);
-		vertices[i].position = (sf2d_vector_3f){rot[i].x + x + w2, rot[i].y + y + h2, rot[i].z};
-	}
-
+	sf2d_set_transform(&m);
 	sf2d_draw_rectangle_internal(vertices);
+	sf2d_set_transform(NULL);
 }
 
 void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
@@ -227,5 +212,5 @@ void sf2d_draw_fill_circle(int x, int y, int radius, u32 color)
 
 	sf2d_setup_env_internal(vertices);
 
-	GPU_DrawArray(GPU_TRIANGLE_FAN, 0, num_segments + 2);
+	C3D_DrawArrays(GPU_TRIANGLE_FAN, 0, num_segments + 2);
 }
