@@ -57,7 +57,7 @@ sf2d_rendertarget *sf2d_create_rendertarget(int width, int height)
 		return NULL;
 	}
 
-	Mtx_OrthoTilt(&rt->projection, 0.0f, width, height, 0.0f, 0.0f, 1.0f);
+	Mtx_OrthoTilt(&rt->projection, 0.0f, width, height, 0.0f, 0.0f, 1.0f, true);
 	return rt;
 }
 
