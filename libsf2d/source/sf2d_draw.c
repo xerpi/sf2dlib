@@ -126,7 +126,7 @@ void sf2d_draw_rectangle_rotate(int x, int y, int w, int h, u32 color, float rad
 
 	C3D_Mtx m;
 	Mtx_Identity(&m);
-	Mtx_Translate(&m, x+w2, y+h2, 0);
+	Mtx_Translate(&m, x+w2, y+h2, 0, true);
 	Mtx_RotateZ(&m, rad, true);
 
 	sf2d_set_transform(&m);
@@ -172,7 +172,7 @@ void sf2d_draw_rectangle_gradient_rotate(int x, int y, int w, int h, u32 color1,
 
 	C3D_Mtx m;
 	Mtx_Identity(&m);
-	Mtx_Translate(&m, x+w2, y+h2, 0);
+	Mtx_Translate(&m, x+w2, y+h2, 0, true);
 	Mtx_RotateZ(&m, rad, true);
 
 	sf2d_set_transform(&m);
