@@ -7,7 +7,7 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
-#define TEX_MIN_SIZE 32
+#define TEX_MIN_SIZE 64
 
 //Grabbed from: http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 unsigned int next_pow2(unsigned int v)
